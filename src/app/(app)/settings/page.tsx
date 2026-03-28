@@ -4,7 +4,7 @@ import SettingsClient, { type MailTemplate } from "./SettingsClient";
 import {
   DEFAULT_SUBJECT_TEMPLATE,
   DEFAULT_BODY_TEMPLATE,
-} from "@/app/api/mail-templates/route";
+} from "@/lib/mail-templates";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
