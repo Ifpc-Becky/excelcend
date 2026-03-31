@@ -44,6 +44,7 @@ const plans: Plan[] = [
       "送信ログ",
       "顧客管理（10件）",
     ],
+    priceIdEnv: "STRIPE_PRICE_ID_STARTER",
   },
   {
     id:          "standard",
@@ -63,6 +64,7 @@ const plans: Plan[] = [
       "CSVインポート",
       "メールテンプレート",
     ],
+    priceIdEnv: "STRIPE_PRICE_ID_STANDRD",
   },
   {
     id:          "business",
@@ -82,6 +84,7 @@ const plans: Plan[] = [
       "メールテンプレート",
       "優先サポート",
     ],
+    priceIdEnv: "STRIPE_PRICE_ID_BUSINESS",
   },
 ];
 
