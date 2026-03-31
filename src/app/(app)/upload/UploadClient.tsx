@@ -789,7 +789,7 @@ export default function UploadClient() {
                     }}
                     placeholder="株式会社〇〇"
                     className="input-field"
-                    disabled={emailStatus === "sending"}
+                    disabled={false}
                   />
                 </div>
 
@@ -805,7 +805,7 @@ export default function UploadClient() {
                     onChange={(e) => { setEmailTo(e.target.value); setEmailError(null); }}
                     placeholder="customer@example.com"
                     className="input-field"
-                    disabled={emailStatus === "sending"}
+                    disabled={false}
                   />
                 </div>
 
@@ -842,7 +842,7 @@ export default function UploadClient() {
                     }}
                     placeholder="件名を入力"
                     className="input-field"
-                    disabled={emailStatus === "sending"}
+                    disabled={false}
                   />
                   {!isSubjectEdited && (
                     <p className="text-xs text-slate-400 mt-1">
@@ -884,7 +884,7 @@ export default function UploadClient() {
                     rows={6}
                     placeholder="メール本文を入力してください"
                     className="input-field resize-y leading-relaxed"
-                    disabled={emailStatus === "sending"}
+                    disabled={false}
                   />
                   {!isBodyEdited && (
                     <p className="text-xs text-slate-400 mt-1">
@@ -925,12 +925,9 @@ export default function UploadClient() {
                   </button>
                   <button
                     onClick={handleSendEmail}
-                    disabled={emailStatus === "sending"}
+                    disabled={false}
                     className="btn-primary"
                   >
-                    {emailStatus === "sending" ? (
-                      <><Loader2 size={15} className="animate-spin" />送信中...</>
-                    ) : (
                       <><Send size={15} />メールを送信</>
                     )}
                   </button>
