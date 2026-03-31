@@ -744,7 +744,7 @@ export default function UploadClient() {
                         if (!isSubjectEdited) setEmailSubject(buildSubject(c.company_name));
                       }}
                       className="input-field"
-                      disabled={emailStatus === "sending"}
+                      disabled={false}
                     >
                       <option value="">— 顧客を選択してください —</option>
                       {customers.map((c) => (
