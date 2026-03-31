@@ -929,7 +929,6 @@ export default function UploadClient() {
                     className="btn-primary"
                   >
                       <><Send size={15} />メールを送信</>
-                    )}
                   </button>
                 </div>
               </div>
