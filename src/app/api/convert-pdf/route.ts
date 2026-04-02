@@ -18,7 +18,10 @@ const SOFFICE_PATH =
 // -------------------------------------------------------
 // tmp ディレクトリ（プロジェクトルート直下 ./tmp）
 // -------------------------------------------------------
-const TMP_DIR = path.join(process.cwd(), "tmp");
+import os from "os";
+import path from "path";
+
+const TMP_DIR = path.join(os.tmpdir(), "excelcend");
 
 // -------------------------------------------------------
 // ユーティリティ
