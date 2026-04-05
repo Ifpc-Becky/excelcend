@@ -71,8 +71,9 @@ pdfPath = path.join(outputDir, pdfFile);
 
     const pdfBuffer = await fs.readFile(pdfPath);
 
+    console.log("[convert success] pdf ready");
+
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `inline; filename="${baseName}.pdf"`);
     return res.status(200).send(pdfBuffer);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
