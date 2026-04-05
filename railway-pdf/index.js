@@ -60,7 +60,14 @@ app.post("/convert", upload.single("file"), async (req, res) => {
 
     const originalName = req.file.originalname || "file.xlsx";
     const baseName = path.basename(originalName, path.extname(originalName));
-    pdfPath = path.join(outputDir, `${baseName}.pdf`);
+    const files = await fs.readdir(outputDir);
+const pdfFile = files.find((name) => name.toLowerCase().endsWith(".pdf"));
+
+if (!pdfFile) {
+  throw new Error("PDF変換に失敗しました: 出力PDFが見つかりません");
+}
+
+pdfPath = path.join(outputDir, pdfFile);
 
     const pdfBuffer = await fs.readFile(pdfPath);
 
