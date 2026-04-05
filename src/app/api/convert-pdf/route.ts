@@ -1,93 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { execFile } from "child_process";
-import { promisify } from "util";
 import fs from "fs/promises";
 import path from "path";
-import os from "os";
 
-const execFileAsync = promisify(execFile);
+const TMP_DIR = "/tmp/excelcend";
 
-// -------------------------------------------------------
-// LibreOffice 実行ファイルパス（Windows）
-// -------------------------------------------------------
-const SOFFICE_PATH =
-  process.env.LIBREOFFICE_PATH ||
-  "C:\\Program Files\\LibreOffice\\program\\soffice.exe";
-
-// -------------------------------------------------------
-// tmp ディレクトリ（プロジェクトルート直下 ./tmp）
-// -------------------------------------------------------
-const TMP_DIR = path.join(os.tmpdir(), "excelcend");
-
-// -------------------------------------------------------
-// ユーティリティ
-// -------------------------------------------------------
-
-/** tmp ディレクトリを確実に作成 */
-async function ensureTmpDir(): Promise<void> {
-  await fs.mkdir(TMP_DIR, { recursive: true });
-}
-
-/** ファイルを安全に削除（失敗しても例外を投げない） */
-async function safeUnlink(filePath: string): Promise<void> {
-  try {
-    await fs.unlink(filePath);
-  } catch {
-    // 一時ファイル削除失敗は無視
-  }
-}
-
-/**
- * LibreOffice headless で Excel → PDF 変換
- * execFile を使うことでパスのスペースを安全に扱う
- */
-async function convertToPdf(inputFile: string, outDir: string): Promise<string> {
-  const args = [
-    "--headless",
-    "--norestore",
-    "--nofirststartwizard",
-    "--convert-to",
-    "pdf",
-    "--outdir",
-    outDir,
-    inputFile,
-  ];
-
-  try {
-    const { stdout, stderr } = await execFileAsync(SOFFICE_PATH, args, {
-      timeout: 120_000, // 2分タイムアウト
-      windowsHide: true, // Windowsでウィンドウを非表示
-    });
-
-    // LibreOffice は stderr に進捗を出すことがあるため stdout/stderr 両方ログ
-    if (stdout) console.log("[LibreOffice stdout]", stdout);
-    if (stderr) console.log("[LibreOffice stderr]", stderr);
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("[LibreOffice error]", message);
-    throw new Error(`PDF変換に失敗しました: ${message}`);
-  }
-
-  // 出力 PDF パスを組み立て（LibreOffice は拡張子を .pdf に変える）
-  const baseName = path.basename(inputFile, path.extname(inputFile));
-  const pdfPath = path.join(outDir, `${baseName}.pdf`);
-
-  // 生成されたか確認
-  try {
-    await fs.access(pdfPath);
-  } catch {
-    throw new Error("PDF変換に失敗しました: 出力ファイルが見つかりません");
-  }
-
-  return pdfPath;
-}
+const RAILWAY_PDF_URL =
+  process.env.RAILWAY_PDF_URL || "https://excelcend-pdf-production.up.railway.app";
 
 // -------------------------------------------------------
 // POST /api/convert-pdf
 // -------------------------------------------------------
 export async function POST(req: NextRequest) {
-  // ① ログインユーザー確認
+  let tmpExcelPath = "";
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -100,7 +26,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // リクエストボディ取得
   let sourcePath: string;
   let fileName: string;
   try {
@@ -124,14 +49,12 @@ export async function POST(req: NextRequest) {
   }
 
   // ② tmp ディレクトリ準備
-  await ensureTmpDir();
+  await fs.mkdir(TMP_DIR, { recursive: true });
 
   // 一時ファイルパスを一意に決定
   const uniquePrefix = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const safeFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-  const tmpExcelPath = path.join(TMP_DIR, `${uniquePrefix}_${safeFileName}`);
-
-  let tmpPdfPath: string | null = null;
+  tmpExcelPath = path.join(TMP_DIR, `${uniquePrefix}_${safeFileName}`);
 
   try {
     // ③ source-files から Excel をダウンロード
@@ -151,11 +74,28 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await fileData.arrayBuffer();
     await fs.writeFile(tmpExcelPath, Buffer.from(arrayBuffer));
 
-    // ④ LibreOffice で PDF 変換
-    tmpPdfPath = await convertToPdf(tmpExcelPath, TMP_DIR);
+   const formData = new FormData();
+const excelBlob = new Blob([Buffer.from(arrayBuffer)], {
+  type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+});
+formData.append("file", excelBlob, fileName);
 
-    // ⑤ PDF ファイルを読み込み
-    const pdfBuffer = await fs.readFile(tmpPdfPath);
+const railwayRes = await fetch(`${RAILWAY_PDF_URL}/convert`, {
+  method: "POST",
+  body: formData,
+});
+
+if (!railwayRes.ok) {
+  const errorText = await railwayRes.text();
+  console.error("[railway convert error]", errorText);
+  return NextResponse.json(
+    { error: "PDF変換に失敗しました" },
+    { status: 500 }
+  );
+}
+
+const pdfArrayBuffer = await railwayRes.arrayBuffer();
+const pdfBuffer = Buffer.from(pdfArrayBuffer);
 
     // PDF 保存パスを組み立て
     const timestamp = Date.now();
@@ -203,8 +143,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: userMessage }, { status: 500 });
   } finally {
-    // ⑦ 一時ファイルを必ず削除
-    await safeUnlink(tmpExcelPath);
-    if (tmpPdfPath) await safeUnlink(tmpPdfPath);
+  if (tmpExcelPath) {
+    await fs.unlink(tmpExcelPath).catch(() => {});
   }
+}
 }
