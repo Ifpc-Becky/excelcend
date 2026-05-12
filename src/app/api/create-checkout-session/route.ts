@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
           supabase_user_id: user.id,
         },
       },
+      allow_promotion_codes: true,
       success_url: `${baseUrl}/dashboard?checkout=success`,
       cancel_url:  `${baseUrl}/pricing?checkout=cancelled`,
       locale: "ja",
