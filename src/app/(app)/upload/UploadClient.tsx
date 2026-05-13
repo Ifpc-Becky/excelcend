@@ -355,11 +355,11 @@ export default function UploadClient() {
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/auth/login"); return; }
 
       const timestamp = Date.now();
       const safeName = selected.file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-      const storagePath = `uploads/${user.id}/${timestamp}_${safeName}`;
+      const userId = user?.id || "guest";
+      const storagePath = `uploads/${userId}/${timestamp}_${safeName}`;
 
       const progressInterval = setInterval(() => {
         setUploadProgress((p) => (p < 85 ? p + Math.random() * 15 : p));
