@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
     !user &&
     !pathname.startsWith("/auth") &&
     pathname !== "/" &&
-    pathname !== "/pricing"
+    pathname !== "/pricing" &&
     pathname !== "/upload"
   ) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
