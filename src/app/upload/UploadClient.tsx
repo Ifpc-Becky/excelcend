@@ -407,8 +407,14 @@ export default function UploadClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sourcePath: uploadedPath, fileName: selected.file.name }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "PDF変換に失敗しました");
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+
+      if (!res.ok) {
+        throw new Error(
+          data.error || `PDF変換に失敗しました（status: ${res.status}）`
+        );
+      }
       setPdfPath(data.pdfPath);
       setConvertStatus("success");
     } catch (err) {
