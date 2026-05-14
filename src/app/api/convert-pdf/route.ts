@@ -109,8 +109,11 @@ const pdfBuffer = Buffer.from(pdfArrayBuffer);
 
     if (uploadError) {
       console.error("[pdf upload error]", uploadError);
+
       return NextResponse.json(
-        { error: "PDF保存に失敗しました" },
+        {
+         error: uploadError.message,
+        },
         { status: 500 }
       );
     }
