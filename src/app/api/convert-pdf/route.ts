@@ -19,12 +19,7 @@ export async function POST(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json(
-      { error: "ログインしていません" },
-      { status: 401 }
-    );
-  }
+  const userId = user?.id || "guest";
 
   let sourcePath: string;
   let fileName: string;
@@ -41,7 +36,7 @@ export async function POST(req: NextRequest) {
   }
 
   // セキュリティ: 自分のパスのみ許可
-  if (!sourcePath.startsWith(`uploads/${user.id}/`)) {
+  if (!sourcePath.startsWith(`uploads/${userId}/`)) {
     return NextResponse.json(
       { error: "アクセス権限がありません" },
       { status: 403 }
@@ -101,7 +96,7 @@ const pdfBuffer = Buffer.from(pdfArrayBuffer);
     const timestamp = Date.now();
     const baseName = path.basename(fileName, path.extname(fileName));
     const safeBase = baseName.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-    const pdfStoragePath = `pdf/${user.id}/${timestamp}_${safeBase}.pdf`;
+    const pdfStoragePath = `pdf/${userId}/${timestamp}_${safeBase}.pdf`;
 
     // ⑥ pdf-files バケットへアップロード
     const { error: uploadError } = await supabase.storage

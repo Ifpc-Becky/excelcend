@@ -365,18 +365,13 @@ export default function UploadClient() {
         setUploadProgress((p) => (p < 85 ? p + Math.random() * 15 : p));
       }, 200);
 
-      let error = null;
-      if (user) {
-        const uploadResult = await supabase.storage
-         .from("source-files")
-         .upload(storagePath, selected.file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: selected.file.type || "application/octet-stream",
-        });
-
-      error = uploadResult.error;
-      }
+    const { error } = await supabase.storage
+      .from("source-files")
+      .upload(storagePath, selected.file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: selected.file.type || "application/octet-stream",
+      });
 
       clearInterval(progressInterval);
 
