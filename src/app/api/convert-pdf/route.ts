@@ -84,9 +84,9 @@ if (!railwayRes.ok) {
   const errorText = await railwayRes.text();
   console.error("[railway convert error]", errorText);
   return NextResponse.json(
-    { error: "PDF変換に失敗しました" },
-    { status: 500 }
-  );
+  { error: errorText || `Railway convert failed: ${railwayRes.status}` },
+  { status: 500 }
+);
 }
 
 const pdfArrayBuffer = await railwayRes.arrayBuffer();
