@@ -112,10 +112,8 @@ const pdfBuffer = Buffer.from(pdfArrayBuffer);
 
       return NextResponse.json(
         {
-         error: uploadError.message,
-        },
-        { status: 500 }
-      );
+           error: uploadError.message, }, { status: 500 }
+          );
     }
 
     // 成功レスポンス
