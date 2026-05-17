@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { buildEmailHtml, toJapaneseError } from "@/lib/email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const resendFrom = process.env.RESEND_FROM_EMAIL;
 
 // メールアドレスの簡易バリデーション
 function isValidEmail(email: string): boolean {
@@ -104,9 +105,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (!resendFrom) {
+    console.error("[send-email] RESEND_FROM_EMAIL is not configured");
+    return NextResponse.json(
+      { error: "送信元メールアドレスが設定されていません" },
+      { status: 500 }
+    );
+  }
+
   // ⑥ Resend でメール送信
   const { data, error } = await resend.emails.send({
-    from: "ExcelCend <onboarding@resend.dev>",
+    from: `ExcelCend <${resendFrom}>`,
     to: [to],
     subject: subject,
     html: buildEmailHtml(companyName, emailBody || undefined),
