@@ -17,12 +17,7 @@ export async function POST(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json(
-      { error: "ログインしていません" },
-      { status: 401 }
-    );
-  }
+  const userId = user?.id || "guest";
 
   // ② リクエストボディ取得・バリデーション
   let to: string;
@@ -69,7 +64,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ③ セキュリティ: 自分の pdf フォルダのみ許可
-  if (!pdfPath.startsWith(`pdf/${user.id}/`)) {
+  if (!pdfPath.startsWith(`pdf/${userId}/`)) {
+    return NextResponse.json(
+      { error: "アクセス権限がありません" },
+      { status: 403 }
+    );
+  }
+
+  if (sourcePath && !sourcePath.startsWith(`uploads/${userId}/`)) {
     return NextResponse.json(
       { error: "アクセス権限がありません" },
       { status: 403 }
@@ -120,15 +122,17 @@ export async function POST(req: NextRequest) {
     console.error("[send-email] Resend error:", error);
 
     // 送信失敗ログを DB に保存（失敗してもログは残す）
-    await supabase.from("send_logs").insert({
-      user_id:          user.id,
-      company_name:     companyName,
-      to_email:         to,
-      subject:          subject,
-      pdf_path:         pdfPath  || null,
-      source_file_path: sourcePath || null,
-      status:           "failed",
-    });
+    if (user) {
+      await supabase.from("send_logs").insert({
+        user_id:          user.id,
+        company_name:     companyName,
+        to_email:         to,
+        subject:          subject,
+        pdf_path:         pdfPath  || null,
+        source_file_path: sourcePath || null,
+        status:           "failed",
+      });
+    }
 
     const msg = typeof error === "object" && "message" in error
       ? String((error as { message: string }).message)
@@ -138,23 +142,25 @@ export async function POST(req: NextRequest) {
   }
 
   // ⑦ 送信成功ログを DB に保存
-  const { error: logError } = await supabase.from("send_logs").insert({
-    user_id:          user.id,
-    company_name:     companyName,
-    to_email:         to,
-    subject:          subject,
-    pdf_path:         pdfPath  || null,
-    source_file_path: sourcePath || null,
-    status:           "sent",
-  });
+  if (user) {
+    const { error: logError } = await supabase.from("send_logs").insert({
+      user_id:          user.id,
+      company_name:     companyName,
+      to_email:         to,
+      subject:          subject,
+      pdf_path:         pdfPath  || null,
+      source_file_path: sourcePath || null,
+      status:           "sent",
+    });
 
-  if (logError) {
-    // ログ保存失敗はサイレントエラー（送信自体は成功しているため）
-    console.error("[send-email] Log insert error:", logError);
+    if (logError) {
+      // ログ保存失敗はサイレントエラー（送信自体は成功しているため）
+      console.error("[send-email] Log insert error:", logError);
+    }
   }
 
   // ⑧ 顧客を自動登録（同一 company_name + email が未登録の場合のみ）
-  if (companyName && to) {
+  if (user && companyName && to) {
     const { error: customerError } = await supabase
       .from("customers")
       .insert({

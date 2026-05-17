@@ -31,6 +31,8 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+  const publicApiPaths = ["/api/convert-pdf", "/api/send-email"];
+  const isPublicApiPath = publicApiPaths.includes(pathname);
 
   // 認証済みユーザーが /auth/* にアクセスしたらダッシュボードへ
   if (user && pathname.startsWith("/auth")) {
@@ -44,7 +46,8 @@ export async function middleware(request: NextRequest) {
     !pathname.startsWith("/auth") &&
     pathname !== "/" &&
     pathname !== "/pricing" &&
-    pathname !== "/upload"
+    pathname !== "/upload" &&
+    !isPublicApiPath
   ) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
