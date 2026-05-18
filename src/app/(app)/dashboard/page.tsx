@@ -79,11 +79,12 @@ export default async function DashboardPage({
   if (!user) redirect("/auth/login");
 
   // -------------------------------------------------------
-  // send_logs を一括取得（RLSで自分のデータのみ返る）
+  // send_logs を一括取得（認証ユーザーIDで明示的に絞り込み）
   // -------------------------------------------------------
   const { data: allLogs, error: logsError } = await supabase
     .from("send_logs")
     .select("id, company_name, to_email, subject, status, created_at")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(200); // 統計計算用に多めに取得
 
@@ -96,17 +97,23 @@ export default async function DashboardPage({
   // -------------------------------------------------------
   // 統計計算
   // -------------------------------------------------------
-  const now = new Date();
-  const thisYear  = now.getFullYear();
-  const thisMonth = now.getMonth(); // 0-indexed
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
 
-  // 今月のログ
-  const thisMonthLogs = logs.filter((l) => {
-    const d = new Date(l.created_at);
-    return d.getFullYear() === thisYear && d.getMonth() === thisMonth;
-  });
+  // 今月の送信済みログ数（認証ユーザーIDで明示的に絞り込み）
+  const { count: thisMonthSentCount, error: usageError } = await supabase
+    .from("send_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("status", "sent")
+    .gte("created_at", monthStart.toISOString());
 
-  const thisMonthCount = thisMonthLogs.length;
+  if (usageError) {
+    console.error("[dashboard] monthly usage fetch error:", usageError);
+  }
+
+  const thisMonthCount = thisMonthSentCount ?? 0;
 
   // 送信成功率（全期間）
   const totalCount   = logs.length;
