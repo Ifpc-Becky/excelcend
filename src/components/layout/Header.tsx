@@ -7,9 +7,10 @@ import { ChevronDown, LogOut, User, Bell } from "lucide-react";
 
 interface HeaderProps {
   userEmail?: string;
+  currentPlan: string;
 }
 
-export default function Header({ userEmail }: HeaderProps) {
+export default function Header({ userEmail, currentPlan }: HeaderProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -34,7 +35,7 @@ export default function Header({ userEmail }: HeaderProps) {
         {/* Plan badge */}
         <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-          <span className="text-xs font-semibold text-blue-700">未契約</span>
+          <span className="text-xs font-semibold text-blue-700">{currentPlan}</span>
         </div>
 
         {/* Notifications */}

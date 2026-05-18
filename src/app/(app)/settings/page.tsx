@@ -5,6 +5,7 @@ import {
   DEFAULT_SUBJECT_TEMPLATE,
   DEFAULT_BODY_TEMPLATE,
 } from "@/lib/mail-templates";
+import { getCurrentSubscriptionPlan } from "@/lib/subscription";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -45,5 +46,7 @@ export default async function SettingsPage() {
     };
   }
 
-  return <SettingsClient initialTemplate={template} />;
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+
+  return <SettingsClient initialTemplate={template} currentPlan={currentPlan.name} />;
 }
