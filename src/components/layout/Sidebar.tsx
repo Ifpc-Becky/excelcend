@@ -21,9 +21,10 @@ const navItems = [
 
 interface SidebarProps {
   monthlySentCount: number;
+  currentPlan: string;
 }
 
-export default function Sidebar({ monthlySentCount }: SidebarProps) {
+export default function Sidebar({ monthlySentCount, currentPlan }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -71,7 +72,7 @@ export default function Sidebar({ monthlySentCount }: SidebarProps) {
           className="block rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-3 hover:from-blue-100 hover:to-indigo-100 transition-colors"
         >
           <p className="text-xs text-slate-500 mb-0.5">現在のプラン</p>
-          <p className="text-sm font-semibold text-blue-700">未契約</p>
+          <p className="text-sm font-semibold text-blue-700">{currentPlan}</p>
           <div className="mt-2">
             <div className="flex justify-between text-xs text-slate-400 mb-1">
               <span>今月の送信数</span>

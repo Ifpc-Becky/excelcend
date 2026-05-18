@@ -27,52 +27,14 @@ export interface MailTemplate {
 }
 
 // -------------------------------------------------------
-// 静的設定セクション（ダミー項目）
-// -------------------------------------------------------
-const staticSections = [
-  {
-    title: "アカウント",
-    icon: Building2,
-    items: [
-      { label: "会社情報", desc: "会社名・住所・電話番号" },
-      { label: "メールアドレス変更", desc: "ログイン用メールを変更" },
-      { label: "パスワード変更", desc: "パスワードを更新" },
-    ],
-  },
-  {
-    title: "通知",
-    icon: Bell,
-    items: [
-      { label: "送信完了通知", desc: "送信成功時にメールで通知" },
-      { label: "送信失敗アラート", desc: "失敗時にリアルタイム通知" },
-    ],
-  },
-  {
-    title: "プランと請求",
-    icon: CreditCard,
-    items: [
-      { label: "現在のプラン", desc: "Standardプラン（¥2,980/月）" },
-      { label: "プランをアップグレード", desc: "送信数・機能を拡張" },
-      { label: "支払い方法", desc: "クレジットカード管理" },
-    ],
-  },
-  {
-    title: "セキュリティ",
-    icon: Shield,
-    items: [
-      { label: "2段階認証", desc: "アカウントのセキュリティを強化" },
-      { label: "ログイン履歴", desc: "最近のログインを確認" },
-    ],
-  },
-];
-
-// -------------------------------------------------------
 // メインコンポーネント
 // -------------------------------------------------------
 export default function SettingsClient({
   initialTemplate,
+  currentPlan,
 }: {
   initialTemplate: MailTemplate;
+  currentPlan: string;
 }) {
   // テンプレート編集 state
   const [subjectTpl, setSubjectTpl] = useState(
@@ -93,6 +55,43 @@ export default function SettingsClient({
         minute: "2-digit",
       })
     : null;
+
+  const staticSections = [
+    {
+      title: "アカウント",
+      icon: Building2,
+      items: [
+        { label: "会社情報", desc: "会社名・住所・電話番号" },
+        { label: "メールアドレス変更", desc: "ログイン用メールを変更" },
+        { label: "パスワード変更", desc: "パスワードを更新" },
+      ],
+    },
+    {
+      title: "通知",
+      icon: Bell,
+      items: [
+        { label: "送信完了通知", desc: "送信成功時にメールで通知" },
+        { label: "送信失敗アラート", desc: "失敗時にリアルタイム通知" },
+      ],
+    },
+    {
+      title: "プランと請求",
+      icon: CreditCard,
+      items: [
+        { label: "現在のプラン", desc: currentPlan },
+        { label: "プランをアップグレード", desc: "送信数・機能を拡張" },
+        { label: "支払い方法", desc: "クレジットカード管理" },
+      ],
+    },
+    {
+      title: "セキュリティ",
+      icon: Shield,
+      items: [
+        { label: "2段階認証", desc: "アカウントのセキュリティを強化" },
+        { label: "ログイン履歴", desc: "最近のログインを確認" },
+      ],
+    },
+  ];
 
   // -------------------------------------------------------
   // 保存処理

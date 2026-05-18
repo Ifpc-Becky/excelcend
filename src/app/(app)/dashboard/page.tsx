@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentSubscriptionPlan } from "@/lib/subscription";
 import {
   FileSpreadsheet,
   TrendingUp,
@@ -130,6 +131,8 @@ export default async function DashboardPage({
   const companyName = user.user_metadata?.company_name ?? null;
   const greeting    = companyName ?? "ようこそ";
 
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+
   // -------------------------------------------------------
   // レンダリング
   // -------------------------------------------------------
@@ -160,6 +163,9 @@ export default async function DashboardPage({
           <h1 className="font-display text-2xl font-bold text-slate-900">
             ダッシュボード
           </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            現在のプラン: <span className="font-semibold text-blue-700">{currentPlan.name}</span>
+          </p>
         </div>
         <Link href="/upload" className="btn-primary">
           <Plus size={16} />
