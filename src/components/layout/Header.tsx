@@ -34,7 +34,7 @@ export default function Header({ userEmail }: HeaderProps) {
         {/* Plan badge */}
         <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-          <span className="text-xs font-semibold text-blue-700">Standardプラン</span>
+          <span className="text-xs font-semibold text-blue-700">未契約</span>
         </div>
 
         {/* Notifications */}
