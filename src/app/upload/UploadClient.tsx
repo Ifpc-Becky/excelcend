@@ -262,6 +262,7 @@ export default function UploadClient() {
   const [isBodyEdited,    setIsBodyEdited]     = useState(false); // 手動編集フラグ
   const [sentTo,          setSentTo]           = useState<string | null>(null);
   const [sentCompany,     setSentCompany]      = useState<string | null>(null);
+  const [isGuest,         setIsGuest]          = useState(false);
 
   // テンプレート（件名・本文のプレースホルダー元）
   const [mailTemplate, setMailTemplate] = useState<MailTemplate | null>(null);
@@ -281,6 +282,7 @@ export default function UploadClient() {
       // ゲストは送信元会社名を空のままにする（placeholder のみ表示）
       if (!user) {
         if (!cancelled) {
+          setIsGuest(true);
           setAccountCompanyName("");
           setCompanyName("");
           setEmailSubject("");
@@ -296,6 +298,7 @@ export default function UploadClient() {
           : "";
 
       if (!cancelled) {
+        setIsGuest(false);
         setAccountCompanyName(profileCompanyName);
         setCompanyName(profileCompanyName);
         if (!isSubjectEdited) {
@@ -402,6 +405,7 @@ export default function UploadClient() {
 
       const timestamp = Date.now();
       const safeName = selected.file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      setIsGuest(!user);
       const userId = user?.id || "guest";
       const storagePath = `uploads/${userId}/${timestamp}_${safeName}`;
 
@@ -1036,16 +1040,31 @@ export default function UploadClient() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <button onClick={resetAll} className="btn-secondary">
-                  <RefreshCw size={15} />
-                  続けて別のファイルを送る
-                </button>
-                <button onClick={() => router.push("/dashboard")} className="btn-primary">
-                  ダッシュボードへ
-                  <ArrowRight size={15} />
-                </button>
-              </div>
+              {isGuest ? (
+                <div className="flex flex-col items-center gap-5">
+                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    {`体験いただきありがとうございます。
+無料体験で送信できる請求書は1通までです。
+続けて請求書を送信するには、会員登録が必要です。
+登録後は送信履歴の確認や、顧客情報の保存もできます。`}
+                  </p>
+                  <button onClick={() => router.push("/auth/signup")} className="btn-primary">
+                    無料登録して続ける
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-3">
+                  <button onClick={resetAll} className="btn-secondary">
+                    <RefreshCw size={15} />
+                    続けて別のファイルを送る
+                  </button>
+                  <button onClick={() => router.push("/dashboard")} className="btn-primary">
+                    ダッシュボードへ
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
