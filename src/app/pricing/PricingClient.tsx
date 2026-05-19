@@ -71,7 +71,7 @@ const plans: Plan[] = [
     name:        "Businessプラン",
     price:       "¥7,980",
     priceNote:   "/ 月（税込）",
-    description: "大量送信・複数担当者向け",
+    description: "大量送信向け",
     icon:        Rocket,
     color:       "bg-violet-100",
     iconColor:   "text-violet-600",
@@ -82,7 +82,7 @@ const plans: Plan[] = [
       "顧客管理（無制限）",
       "CSVインポート",
       "メールテンプレート",
-      "優先サポート",
+      "24時間以内返信保証",
     ],
     priceIdEnv: "STRIPE_PRICE_ID_BUSINESS",
   },
@@ -163,6 +163,15 @@ export default function PricingClient({
     <div className="min-h-screen bg-slate-50 py-16 px-4">
       <div className="max-w-5xl mx-auto">
 
+        <div className="mb-6">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          >
+            ダッシュボードへ戻る
+          </button>
+        </div>
+
         {/* ── キャンセル通知 ── */}
         {checkoutStatus === "cancelled" && (
           <div className="mb-8 flex items-center gap-2.5 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-700 max-w-xl mx-auto">
@@ -185,8 +194,8 @@ export default function PricingClient({
             プランを選択
           </h1>
           <p className="text-slate-500 text-sm">
-            すべてのプランに14日間の無料トライアルが付いています。<br />
-            クレジットカードはトライアル終了後に請求されます。
+            料金は月額制です。いつでも解約可能です。<br />
+            お支払いはStripeにて安全に処理されます。
           </p>
         </div>
 
@@ -283,10 +292,10 @@ export default function PricingClient({
         {/* ── 補足 ── */}
         <div className="mt-10 text-center space-y-2">
           <p className="text-xs text-slate-400">
-            お支払いは Stripe により安全に処理されます。いつでもキャンセル可能です。
+            料金は月額制です。いつでも解約可能です。
           </p>
           <p className="text-xs text-slate-400">
-            ご不明な点は <span className="text-blue-600">support@excelcend.jp</span> までお問い合わせください。
+            ご不明な点は <span className="text-blue-600">support@excelcend.com</span> までお問い合わせください。
           </p>
         </div>
       </div>
