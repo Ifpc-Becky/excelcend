@@ -61,9 +61,11 @@ export async function POST(req: NextRequest) {
   }
 
   // ④ ベースURL取得
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") ||
-    `https://${req.headers.get("host")}`;
+    process.env.VERCEL_ENV === "production"
+      ? "https://excelcend.com"
+      : appUrl || "https://excelcend.com";
 
   // ⑤ Stripe Checkout Session 作成
   try {
