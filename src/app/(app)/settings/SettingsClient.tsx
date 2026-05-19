@@ -9,6 +9,10 @@ import {
   AlertCircle,
   FileText,
   ExternalLink,
+  Building2,
+  CreditCard,
+  LifeBuoy,
+  ChevronRight,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -159,36 +163,58 @@ export default function SettingsClient({
         <p className="text-sm text-slate-500 mt-0.5">アカウントと各種設定を管理します</p>
       </div>
 
-      <div className="card p-6 space-y-4">
-        <h2 className="text-sm font-semibold text-slate-700">会社情報</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input className="input-field" placeholder="会社名" value={profile.companyName} onChange={(e)=>setProfile({...profile, companyName:e.target.value})} />
-          <input className="input-field" placeholder="郵便番号" value={profile.postalCode} onChange={(e)=>setProfile({...profile, postalCode:e.target.value})} />
-          <input className="input-field md:col-span-2" placeholder="住所" value={profile.address} onChange={(e)=>setProfile({...profile, address:e.target.value})} />
-          <input className="input-field" placeholder="電話番号" value={profile.phoneNumber} onChange={(e)=>setProfile({...profile, phoneNumber:e.target.value})} />
+      <div className="card overflow-hidden">
+        <div className="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+          <Building2 size={16} className="text-slate-500" />
+          <h2 className="text-sm font-semibold text-slate-700">アカウント</h2>
         </div>
-        {profileError && <p className="text-xs text-red-500">{profileError}</p>}
-        {profileMessage && <p className="text-xs text-emerald-600">{profileMessage}</p>}
-        <div className="flex justify-end"><button onClick={saveCompanyProfile} disabled={savingProfile} className="btn-primary">{savingProfile ? <><Loader2 size={14} className="animate-spin" />保存中...</> : <><Save size={14} />会社情報を保存</>}</button></div>
+        <div className="p-6 space-y-6">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-slate-800">会社情報編集</h3>
+              <ChevronRight size={16} className="text-slate-300" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input className="input-field" placeholder="会社名" value={profile.companyName} onChange={(e)=>setProfile({...profile, companyName:e.target.value})} />
+              <input className="input-field" placeholder="郵便番号" value={profile.postalCode} onChange={(e)=>setProfile({...profile, postalCode:e.target.value})} />
+              <input className="input-field md:col-span-2" placeholder="住所" value={profile.address} onChange={(e)=>setProfile({...profile, address:e.target.value})} />
+              <input className="input-field" placeholder="電話番号" value={profile.phoneNumber} onChange={(e)=>setProfile({...profile, phoneNumber:e.target.value})} />
+            </div>
+            {profileError && <p className="text-xs text-red-500 mt-2">{profileError}</p>}
+            {profileMessage && <p className="text-xs text-emerald-600 mt-2">{profileMessage}</p>}
+            <div className="flex justify-end mt-3"><button onClick={saveCompanyProfile} disabled={savingProfile} className="btn-primary">{savingProfile ? <><Loader2 size={14} className="animate-spin" />保存中...</> : <><Save size={14} />保存</>}</button></div>
+          </div>
+
+          <div className="pt-5 border-t border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-800 mb-1">メールアドレス変更</h3>
+            <p className="text-xs text-slate-500">メールアドレス変更をご希望の場合は support@excelcend.com までご連絡ください</p>
+          </div>
+
+          <div className="pt-5 border-t border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-800 mb-2">パスワード変更</h3>
+            <div className="space-y-2">
+              <input type="password" className="input-field" placeholder="新しいパスワード（8文字以上）" value={password} onChange={(e)=>setPassword(e.target.value)} />
+              {passwordError && <p className="text-xs text-red-500">{passwordError}</p>}
+              {passwordMessage && <p className="text-xs text-emerald-600">{passwordMessage}</p>}
+              <div className="flex justify-end">
+                <button onClick={changePassword} disabled={savingPassword} className="btn-primary">{savingPassword ? <><Loader2 size={14} className="animate-spin" />変更中...</> : <><Save size={14} />保存</>}</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="card p-6 space-y-3">
-        <h2 className="text-sm font-semibold text-slate-700">アカウント</h2>
-        <p className="text-xs text-slate-500">メールアドレス変更は support@excelcend.com までお問い合わせください</p>
-        <div className="space-y-2">
-          <input type="password" className="input-field" placeholder="新しいパスワード（8文字以上）" value={password} onChange={(e)=>setPassword(e.target.value)} />
-          {passwordError && <p className="text-xs text-red-500">{passwordError}</p>}
-          {passwordMessage && <p className="text-xs text-emerald-600">{passwordMessage}</p>}
-          <button onClick={changePassword} disabled={savingPassword} className="btn-primary">{savingPassword ? <><Loader2 size={14} className="animate-spin" />変更中...</> : "パスワードを変更"}</button>
+      <div className="card overflow-hidden">
+        <div className="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+          <CreditCard size={16} className="text-slate-500" />
+          <h2 className="text-sm font-semibold text-slate-700">プランと請求</h2>
         </div>
-      </div>
-
-      <div className="card p-6 space-y-3">
-        <h2 className="text-sm font-semibold text-slate-700">プランと請求</h2>
-        <p className="text-xs text-slate-500">現在のプラン: <span className="font-semibold text-slate-700">{currentPlan}</span></p>
-        <div className="flex flex-wrap gap-2">
-          <a href="/pricing" className="btn-primary"><ExternalLink size={14} />プランをアップグレード</a>
-          <button onClick={openCustomerPortal} disabled={billingLoading} className="btn-secondary">{billingLoading ? <><Loader2 size={14} className="animate-spin" />移動中...</> : "支払い方法を変更"}</button>
+        <div className="p-6 space-y-3">
+          <p className="text-xs text-slate-500">現在のプラン: <span className="font-semibold text-slate-700">{currentPlan}</span></p>
+          <div className="flex flex-wrap gap-2">
+            <a href="/pricing" className="btn-primary"><ExternalLink size={14} />プランをアップグレード</a>
+            <button onClick={openCustomerPortal} disabled={billingLoading} className="btn-secondary">{billingLoading ? <><Loader2 size={14} className="animate-spin" />移動中...</> : "支払い方法を変更"}</button>
+          </div>
         </div>
         {billingError && <p className="text-xs text-red-500">{billingError}</p>}
       </div>
@@ -211,9 +237,14 @@ export default function SettingsClient({
         </div>
       </div>
 
-      <div className="card p-5 border-red-100 bg-red-50/30">
-        <h3 className="text-sm font-semibold text-red-700 mb-1">危険ゾーン</h3>
-        <p className="text-xs text-red-500">アカウント削除をご希望の場合は support@excelcend.com までお問い合わせください。</p>
+      <div className="card overflow-hidden">
+        <div className="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+          <LifeBuoy size={16} className="text-slate-500" />
+          <h2 className="text-sm font-semibold text-slate-700">サポート</h2>
+        </div>
+        <div className="p-6">
+          <p className="text-sm text-slate-600">アカウント削除をご希望の場合は support@excelcend.com までお問い合わせください。</p>
+        </div>
       </div>
     </div>
   );
