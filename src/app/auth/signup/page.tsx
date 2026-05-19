@@ -135,7 +135,7 @@ export default function SignupPage() {
 
         <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
           {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-          {loading ? "登録中..." : "無料で始める"}
+          {loading ? "登録中..." : "アカウントを作成"}
         </button>
 
         <p className="text-xs text-center text-slate-400">
