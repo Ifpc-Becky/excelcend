@@ -165,10 +165,10 @@ export default function PricingClient({
 
         <div className="mb-6">
           <button
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/")}
             className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
           >
-            ダッシュボードへ戻る
+            トップへ戻る
           </button>
         </div>
 

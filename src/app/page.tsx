@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FileSpreadsheet } from "lucide-react";
 
 const painPoints = [
   "ExcelからPDFにする作業が毎回手間",
@@ -42,7 +43,7 @@ const faqs = [
 const plans = [
   { name: "Starter", summary: "個人事業主向けの小規模運用に" },
   { name: "Standard", summary: "中小企業の定常業務を効率化" },
-  { name: "Business", summary: "送信量が多いチームや複数担当者向け" },
+  { name: "Business", summary: "送信量が多い事業者向け" },
 ];
 
 export default function Home() {
@@ -50,9 +51,11 @@ export default function Home() {
     <main className="bg-white text-slate-900">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <header className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-600" />
-            <span className="text-sm font-semibold text-slate-700">ExcelCend</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+              <FileSpreadsheet size={16} className="text-white" />
+            </div>
+            <span className="font-display text-base font-bold text-slate-900 tracking-tight">ExcelCend</span>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/pricing" className="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
