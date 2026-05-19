@@ -8,7 +8,7 @@ function getStripeClient() {
   return new Stripe(secretKey, { apiVersion: "2025-02-24.acacia" });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "ログイン情報が不正です" }, { status: 401 });
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") || `https://${req.headers.get("host")}`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  const baseUrl =
+    process.env.VERCEL_ENV === "production"
+      ? "https://excelcend.com"
+      : appUrl || "https://excelcend.com";
 
   try {
     const stripe = getStripeClient();

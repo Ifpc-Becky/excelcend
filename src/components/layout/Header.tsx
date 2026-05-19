@@ -67,7 +67,13 @@ export default function Header({ userEmail, currentPlan }: HeaderProps) {
                   <p className="text-xs text-slate-400">ログイン中</p>
                   <p className="text-sm font-medium text-slate-900 truncate">{userEmail}</p>
                 </div>
-                <button className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 transition">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push("/settings");
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 transition"
+                >
                   <User size={15} className="text-slate-400" />
                   アカウント設定
                 </button>
