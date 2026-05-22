@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ChevronDown, LogOut, User, Bell } from "lucide-react";
+import { ChevronDown, LogOut, User } from "lucide-react";
 
 interface HeaderProps {
   userEmail?: string;
@@ -38,11 +38,7 @@ export default function Header({ userEmail, currentPlan }: HeaderProps) {
           <span className="text-xs font-semibold text-blue-700">{currentPlan}</span>
         </div>
 
-        {/* Notifications */}
-        <button className="relative w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition">
-          <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
-        </button>
+        {/* Notifications (temporarily hidden until feature is implemented) */}
 
         {/* User menu */}
         <div className="relative">
