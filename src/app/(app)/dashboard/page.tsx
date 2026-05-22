@@ -279,7 +279,10 @@ export default async function DashboardPage({
             </div>
           </Link>
 
-          <button className="group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-violet-300 hover:bg-violet-50/50 transition-all text-left">
+          <Link
+            href="/customers"
+            className="group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-violet-300 hover:bg-violet-50/50 transition-all text-left"
+          >
             <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0 group-hover:bg-violet-200 transition">
               <Users size={20} className="text-violet-600" />
             </div>
@@ -287,7 +290,7 @@ export default async function DashboardPage({
               <p className="text-sm font-semibold text-slate-800">顧客を追加</p>
               <p className="text-xs text-slate-400">新規顧客を登録</p>
             </div>
-          </button>
+          </Link>
 
           <Link
             href="/logs"
