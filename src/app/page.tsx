@@ -50,7 +50,7 @@ export default function Home() {
   return (
     <main className="bg-white text-slate-900">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <header className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
+        <header className="sticky top-0 z-30 flex items-center justify-between rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
               <FileSpreadsheet size={16} className="text-white" />
