@@ -42,6 +42,20 @@ export default function SignupPage() {
       return;
     }
 
+    try {
+      const res = await fetch("/api/auth/signup-thank-you", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        console.error("[signup] thank-you mail failed:", await res.text());
+      }
+    } catch (mailError) {
+      console.error("[signup] thank-you mail request error:", mailError);
+    }
+
     setSuccess(true);
     setLoading(false);
 
