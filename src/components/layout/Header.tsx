@@ -24,7 +24,7 @@ export default function Header({ userEmail, currentPlan }: HeaderProps) {
   const initials = userEmail ? userEmail[0].toUpperCase() : "U";
 
   return (
-    <header className="fixed top-0 left-[240px] right-0 h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 z-10">
+    <header className="sticky top-0 h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-6 z-30">
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold text-slate-900 hidden sm:block">
           請求書送付ダッシュボード
@@ -57,8 +57,8 @@ export default function Header({ userEmail, currentPlan }: HeaderProps) {
 
           {menuOpen && (
             <>
-              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-full mt-1.5 w-52 rounded-xl bg-white border border-slate-100 shadow-lg py-1.5 z-20">
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-full mt-1.5 w-52 rounded-xl bg-white border border-slate-100 shadow-lg py-1.5 z-50">
                 <div className="px-3.5 py-2 border-b border-slate-100 mb-1">
                   <p className="text-xs text-slate-400">ログイン中</p>
                   <p className="text-sm font-medium text-slate-900 truncate">{userEmail}</p>

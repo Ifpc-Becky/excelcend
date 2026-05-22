@@ -32,8 +32,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-slate-50">
       <Sidebar monthlySentCount={monthlySentCount ?? 0} currentPlan={currentPlan.name} />
-      <Header userEmail={user.email} currentPlan={currentPlan.name} />
-      <main className="ml-[240px] pt-16 min-h-screen">
+      <main className="min-h-screen ml-0 md:ml-[240px]">
+        <Header userEmail={user.email} currentPlan={currentPlan.name} />
         <div className="p-6 lg:p-8">
           {children}
         </div>
