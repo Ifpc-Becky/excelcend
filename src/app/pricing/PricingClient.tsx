@@ -132,6 +132,7 @@ export default function PricingClient({
   const router = useRouter();
   const [loading,      setLoading]      = useState<string | null>(null); // planId
   const [globalError,  setGlobalError]  = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   // プランID → price_id マッピング
   const priceIdMap: Record<string, string> = {
@@ -186,6 +187,16 @@ export default function PricingClient({
     }
   };
 
+  const handleCopyCoupon = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 1600);
+    } catch {
+      setGlobalError("クーポンコードのコピーに失敗しました。");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-16 px-4">
       <div className="max-w-5xl mx-auto">
@@ -226,16 +237,40 @@ export default function PricingClient({
           </p>
         </div>
 
-        <div className="mb-8 rounded-2xl border border-blue-100 bg-blue-50/60 p-5 md:p-6">
-          <p className="text-sm font-bold text-blue-700 mb-3">【先着100社限定・創業ユーザー特典】</p>
-          <div className="space-y-2 text-sm text-slate-700">
-            <p>クーポンコード：<span className="font-semibold text-slate-900">EARLY100SD</span>（Standard：980円 → 690円 / 月）</p>
-            <p>クーポンコード：<span className="font-semibold text-slate-900">EARLY100BIZ</span>（Business：2,980円 → 1,980円 / 月）</p>
-          </div>
-          <div className="mt-3 space-y-1 text-xs text-slate-500">
-            <p>※先着100社限定です</p>
-            <p>※上限到達後は通常価格が適用されます</p>
-            <p>※契約継続中は永年割引が適用されます</p>
+        <div className="mb-10 flex justify-center">
+          <div className="w-full max-w-2xl rounded-2xl border border-[#D4AF37] bg-[#FFF9E8] px-4 py-5 text-center shadow-[0_8px_26px_rgba(15,23,42,0.08)] md:px-7 md:py-6">
+            <p className="text-sm font-semibold text-slate-800 md:text-base">
+              ✨ 先着100社限定｜創業ユーザー特典
+            </p>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {[
+                { name: "Standardプラン", code: "EARLY100SD", regular: "通常 ¥980", discounted: "¥690 / 月" },
+                { name: "Businessプラン", code: "EARLY100BIZ", regular: "通常 ¥2,980", discounted: "¥1,980 / 月" },
+              ].map((coupon) => (
+                <div key={coupon.code} className="rounded-xl border border-[#D4AF37]/45 bg-white/70 px-3.5 py-4 text-left shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
+                  <p className="text-xs font-semibold text-slate-600">{coupon.name}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCoupon(coupon.code)}
+                    className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#D4AF37] bg-[#FFF3CC] px-3 py-1.5 text-xs font-bold text-[#7a5a00] transition-colors hover:bg-[#FFEAA8]"
+                  >
+                    <span>{coupon.code}</span>
+                    <span className="text-[11px] font-medium text-[#8a6a0f]">
+                      {copiedCode === coupon.code ? "コピー済み" : "コピー"}
+                    </span>
+                  </button>
+                  <p className="mt-2 text-xs text-slate-500">{coupon.regular}</p>
+                  <p className="text-base font-bold text-slate-900">{coupon.discounted}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 space-y-1 text-xs text-slate-600">
+              <p>※先着100社限定</p>
+              <p>※100社到達後は通常価格</p>
+              <p>※決済時にコード入力で適用</p>
+            </div>
           </div>
         </div>
 
