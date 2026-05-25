@@ -15,7 +15,7 @@ import {
 // プラン定義
 // -------------------------------------------------------
 interface Plan {
-  id:          "starter" | "standard" | "business";
+  id:          "free" | "starter" | "standard" | "business";
   name:        string;
   price:       string;          // 表示用
   priceNote:   string;          // "/月" など
@@ -25,66 +25,88 @@ interface Plan {
   iconColor:   string;
   badge?:      string;          // "人気" など
   features:    string[];
-  priceIdEnv:  string;          // window.__ENV__ からは使わず props で受け取る
+  ctaLabel:    string;
 }
 
 const plans: Plan[] = [
   {
+    id:          "free",
+    name:        "Freeプラン",
+    price:       "¥0",
+    priceNote:   "/ 月",
+    description: "まずは無料でお試し",
+    icon:        Zap,
+    color:       "bg-slate-100",
+    iconColor:   "text-slate-500",
+    features: [
+      "月10通まで送信 / ユーザー数1名",
+      "Excel→PDF変換・メール送信",
+      "送信ログ（30日）・顧客管理（5件まで）",
+      "再送 / CSV取込 / CC・BCC / テンプレ / 閲覧リンク・閲覧ログ なし",
+      "クーポン利用不可・Powered by表記あり（固定）",
+      "メールサポート（5営業日以内）",
+    ],
+    ctaLabel:    "無料で試す",
+  },
+  {
     id:          "starter",
     name:        "Starterプラン",
-    price:       "¥980",
+    price:       "¥390",
     priceNote:   "/ 月（税込）",
     description: "個人・フリーランス向け",
     icon:        Zap,
     color:       "bg-slate-100",
     iconColor:   "text-slate-500",
     features: [
-      "月10件まで送信",
-      "PDF変換",
-      "送信ログ",
-      "顧客管理（10件）",
+      "月30通まで送信 / ユーザー数1名",
+      "Excel→PDF変換・メール送信",
+      "送信ログ（90日）・顧客管理（50件まで）",
+      "再送 / CSV取込 / CC・BCC / テンプレ / 閲覧リンク・閲覧ログ なし",
+      "クーポン利用不可・Powered by表記あり",
+      "メールサポート（5営業日以内）",
     ],
-    priceIdEnv: "STRIPE_PRICE_ID_STARTER",
+    ctaLabel:    "このプランで始める",
   },
   {
     id:          "standard",
     name:        "Standardプラン",
-    price:       "¥2,980",
+    price:       "¥980",
     priceNote:   "/ 月（税込）",
     description: "中小企業・チーム向け",
     icon:        Building2,
     color:       "bg-blue-600",
     iconColor:   "text-white",
-    badge:       "人気",
+    badge:       "おすすめ",
     features: [
-      "月50件まで送信",
-      "PDF変換",
-      "送信ログ・再送機能",
-      "顧客管理（無制限）",
-      "CSVインポート",
-      "メールテンプレート",
+      "月100通まで送信 / ユーザー数1名",
+      "Excel→PDF変換・メール送信",
+      "送信ログ（無制限）・再送機能",
+      "顧客管理（無制限）・顧客CSV取込",
+      "CC/BCC・メールテンプレ・閲覧リンク・閲覧ログ",
+      "Powered by表記：任意",
+      "優先メールサポート（2営業日以内）",
     ],
-    priceIdEnv: "STRIPE_PRICE_ID_STANDRD",
+    ctaLabel:    "このプランで始める",
   },
   {
     id:          "business",
     name:        "Businessプラン",
-    price:       "¥7,980",
+    price:       "¥2,980",
     priceNote:   "/ 月（税込）",
     description: "大量送信向け",
     icon:        Rocket,
     color:       "bg-violet-100",
     iconColor:   "text-violet-600",
     features: [
-      "月送信無制限",
-      "PDF変換",
-      "送信ログ・再送機能",
-      "顧客管理（無制限）",
-      "CSVインポート",
-      "メールテンプレート",
-      "24時間以内返信保証",
+      "送信通数：無制限 / ユーザー数：3〜5名",
+      "Excel→PDF変換・メール送信",
+      "送信ログ（無制限）・再送機能",
+      "顧客管理（無制限）・顧客CSV取込",
+      "CC/BCC・メールテンプレ・閲覧リンク・閲覧ログ",
+      "Powered by表記：任意",
+      "メール＋チャット / Zoomサポート",
     ],
-    priceIdEnv: "STRIPE_PRICE_ID_BUSINESS",
+    ctaLabel:    "このプランで始める",
   },
 ];
 
@@ -122,6 +144,11 @@ export default function PricingClient({
   // Checkout 開始
   // -------------------------------------------------------
   const handleSubscribe = async (planId: string) => {
+    if (planId === "free") {
+      router.push("/auth/signup");
+      return;
+    }
+
     const priceId = priceIdMap[planId];
     if (!priceId) {
       setGlobalError("このプランは現在準備中です。しばらくお待ちください。");
@@ -199,6 +226,19 @@ export default function PricingClient({
           </p>
         </div>
 
+        <div className="mb-8 rounded-2xl border border-blue-100 bg-blue-50/60 p-5 md:p-6">
+          <p className="text-sm font-bold text-blue-700 mb-3">【先着100社限定・創業ユーザー特典】</p>
+          <div className="space-y-2 text-sm text-slate-700">
+            <p>クーポンコード：<span className="font-semibold text-slate-900">EARLY100SD</span>（Standard：980円 → 690円 / 月）</p>
+            <p>クーポンコード：<span className="font-semibold text-slate-900">EARLY100BIZ</span>（Business：2,980円 → 1,980円 / 月）</p>
+          </div>
+          <div className="mt-3 space-y-1 text-xs text-slate-500">
+            <p>※先着100社限定です</p>
+            <p>※上限到達後は通常価格が適用されます</p>
+            <p>※契約継続中は永年割引が適用されます</p>
+          </div>
+        </div>
+
         {/* ── グローバルエラー ── */}
         {globalError && (
           <div className="mb-6 flex items-center gap-2.5 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600 max-w-xl mx-auto">
@@ -208,7 +248,7 @@ export default function PricingClient({
         )}
 
         {/* ── プランカード ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {plans.map((plan) => {
             const Icon       = plan.icon;
             const isStandard = plan.id === "standard";
@@ -281,7 +321,7 @@ export default function PricingClient({
                   {isLoading ? (
                     <><Loader2 size={15} className="animate-spin" />処理中...</>
                   ) : (
-                    "このプランを選択"
+                    plan.ctaLabel
                   )}
                 </button>
               </div>
