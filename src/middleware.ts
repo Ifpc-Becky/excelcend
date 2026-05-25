@@ -2,6 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/api/stripe-webhook") {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -30,8 +36,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-  const publicApiPaths = ["/api/convert-pdf", "/api/send-email"];
+  const publicApiPaths = ["/api/convert-pdf", "/api/send-email", "/api/stripe-webhook"];
   const isPublicApiPath = publicApiPaths.includes(pathname);
 
   // 認証済みユーザーが /auth/* にアクセスしたらダッシュボードへ
