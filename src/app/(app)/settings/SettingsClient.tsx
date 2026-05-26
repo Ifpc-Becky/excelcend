@@ -76,7 +76,7 @@ export default function SettingsClient({
 
   const handleSave = async () => {
     if (!canUseMailTemplates) {
-      setSaveError("メールテンプレはStandardプラン以上で利用できます。");
+      setSaveError("メールテンプレートはStandardプラン以上で利用できます。");
       return;
     }
 
@@ -238,7 +238,7 @@ export default function SettingsClient({
         <div className="p-6 space-y-5">{/* existing template UI */}
           {!canUseMailTemplates && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
-              メールテンプレはStandardプラン以上で利用できます。<Link href="/pricing" className="ml-1 underline">/pricing</Link>
+              メールテンプレートはStandardプラン以上で利用できます。<Link href="/pricing" className="ml-1 underline">料金プランを見る</Link>
             </div>
           )}
           <div className="flex items-start gap-2.5 rounded-xl bg-blue-50/60 border border-blue-100 px-4 py-3"><FileText size={14} className="text-blue-500 flex-shrink-0 mt-0.5" /><p className="text-xs text-blue-700 leading-relaxed"><span className="font-semibold">{"{companyName}"}</span> と記述すると、送信時に送信元会社名に自動置換されます。</p></div>

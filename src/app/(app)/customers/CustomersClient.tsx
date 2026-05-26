@@ -286,7 +286,7 @@ export default function CustomersClient({
             ? "顧客登録数の上限に達しました。プランをアップグレードすると、さらに登録できます。"
             : "CSV取込はStandardプラン以上で利用できます。"}
           <div className="mt-2">
-            <Link href="/pricing" className="text-amber-900 underline">/pricingでプランを見る</Link>
+            <Link href="/pricing" className="text-amber-900 underline">料金プランを見る</Link>
           </div>
         </div>
       )}
