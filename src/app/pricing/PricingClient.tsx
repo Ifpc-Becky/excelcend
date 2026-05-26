@@ -50,7 +50,7 @@ const plans: Plan[] = [
       "クーポン利用不可",
       "メールサポート（5営業日以内）",
     ],
-    ctaLabel:    "無料で試す",
+    ctaLabel:    "登録して始める",
   },
   {
     id:          "starter",
