@@ -14,7 +14,9 @@ import {
   LifeBuoy,
   ChevronRight,
 } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { canUseStandardFeatures, type SubscriptionPlan } from "@/lib/subscription";
 
 export interface MailTemplate {
   id: string | null;
@@ -37,7 +39,7 @@ export default function SettingsClient({
   initialProfile,
 }: {
   initialTemplate: MailTemplate;
-  currentPlan: string;
+  currentPlan: SubscriptionPlan;
   initialProfile: AccountProfile;
 }) {
   const supabase = createClient();
@@ -59,6 +61,7 @@ export default function SettingsClient({
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const [billingLoading, setBillingLoading] = useState(false);
+  const canUseMailTemplates = canUseStandardFeatures(currentPlan);
   const [billingError, setBillingError] = useState<string | null>(null);
 
   const lastSaved = initialTemplate.updated_at
@@ -72,6 +75,11 @@ export default function SettingsClient({
     : null;
 
   const handleSave = async () => {
+    if (!canUseMailTemplates) {
+      setSaveError("メールテンプレはStandardプラン以上で利用できます。");
+      return;
+    }
+
     if (!bodyTpl.trim()) {
       setSaveError("本文テンプレートは必須です");
       return;
@@ -228,12 +236,17 @@ export default function SettingsClient({
           {lastSaved && <span className="text-xs text-slate-400">最終保存: {lastSaved}</span>}
         </div>
         <div className="p-6 space-y-5">{/* existing template UI */}
+          {!canUseMailTemplates && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+              メールテンプレはStandardプラン以上で利用できます。<Link href="/pricing" className="ml-1 underline">/pricing</Link>
+            </div>
+          )}
           <div className="flex items-start gap-2.5 rounded-xl bg-blue-50/60 border border-blue-100 px-4 py-3"><FileText size={14} className="text-blue-500 flex-shrink-0 mt-0.5" /><p className="text-xs text-blue-700 leading-relaxed"><span className="font-semibold">{"{companyName}"}</span> と記述すると、送信時に送信元会社名に自動置換されます。</p></div>
-          <div><label className="block text-xs font-semibold text-slate-600 mb-1.5">件名テンプレート</label><input type="text" value={subjectTpl} onChange={(e) => { setSubjectTpl(e.target.value); setSaveError(null); }} placeholder="{companyName}より請求書を送付いたしました" className="input-field" disabled={saving} /></div>
-          <div><label className="block text-xs font-semibold text-slate-600 mb-1.5">本文テンプレート<span className="text-red-400 ml-0.5">*</span></label><textarea value={bodyTpl} onChange={(e) => { setBodyTpl(e.target.value); setSaveError(null); }} rows={8} className="input-field resize-y leading-relaxed" disabled={saving} /></div>
+          <div><label className="block text-xs font-semibold text-slate-600 mb-1.5">件名テンプレート</label><input type="text" value={subjectTpl} onChange={(e) => { setSubjectTpl(e.target.value); setSaveError(null); }} placeholder="{companyName}より請求書を送付いたしました" className="input-field" disabled={saving || !canUseMailTemplates} /></div>
+          <div><label className="block text-xs font-semibold text-slate-600 mb-1.5">本文テンプレート<span className="text-red-400 ml-0.5">*</span></label><textarea value={bodyTpl} onChange={(e) => { setBodyTpl(e.target.value); setSaveError(null); }} rows={8} className="input-field resize-y leading-relaxed" disabled={saving || !canUseMailTemplates} /></div>
           {saveError && <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-100 px-3 py-2.5 text-xs text-red-600"><AlertCircle size={13} className="flex-shrink-0 text-red-400" />{saveError}</div>}
           {saveSuccess && <div className="flex items-center gap-2 rounded-lg bg-emerald-50 border border-emerald-100 px-3 py-2.5 text-xs text-emerald-700"><CheckCircle2 size={13} className="flex-shrink-0 text-emerald-500" />テンプレートを保存しました</div>}
-          <div className="flex justify-end pt-1 border-t border-slate-100"><button onClick={handleSave} disabled={saving} className="btn-primary">{saving ? <><Loader2 size={14} className="animate-spin" />保存中...</> : <><Save size={14} />テンプレートを保存</>}</button></div>
+          <div className="flex justify-end pt-1 border-t border-slate-100"><button onClick={handleSave} disabled={saving || !canUseMailTemplates} className="btn-primary">{saving ? <><Loader2 size={14} className="animate-spin" />保存中...</> : <><Save size={14} />テンプレートを保存</>}</button></div>
         </div>
       </div>
 

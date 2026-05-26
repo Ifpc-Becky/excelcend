@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import LogsClient, { type SendLog } from "./LogsClient";
+import { getCurrentSubscriptionPlan } from "@/lib/subscription";
 
 export default async function LogsPage() {
   const supabase = await createClient();
@@ -26,6 +27,7 @@ export default async function LogsPage() {
   }
 
   const initialLogs: SendLog[] = logs ?? [];
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
 
-  return <LogsClient initialLogs={initialLogs} />;
+  return <LogsClient initialLogs={initialLogs} currentPlan={currentPlan.name} />;
 }

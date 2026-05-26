@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { canUseStandardFeatures, getCurrentSubscriptionPlan } from "@/lib/subscription";
 
 // -------------------------------------------------------
 // 型定義
@@ -145,6 +146,14 @@ export async function POST(req: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "ログインしていません" }, { status: 401 });
+  }
+
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+  if (!canUseStandardFeatures(currentPlan.name)) {
+    return NextResponse.json(
+      { error: "CSV取込はStandardプラン以上で利用できます。" },
+      { status: 403 }
+    );
   }
 
   // ② CSVテキスト取得

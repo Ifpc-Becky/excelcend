@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { buildEmailHtml, toJapaneseError } from "@/lib/email";
+import { canUseStandardFeatures, getCurrentSubscriptionPlan } from "@/lib/subscription";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -14,6 +15,14 @@ export async function POST(req: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: "ログインしていません" }, { status: 401 });
+  }
+
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+  if (!canUseStandardFeatures(currentPlan.name)) {
+    return NextResponse.json(
+      { error: "再送機能はStandardプラン以上で利用できます。" },
+      { status: 403 }
+    );
   }
 
   // ② リクエストボディ

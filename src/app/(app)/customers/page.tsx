@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import CustomersClient, { type Customer } from "./CustomersClient";
+import { getCurrentSubscriptionPlan } from "@/lib/subscription";
 
 export default async function CustomersPage() {
   const supabase = await createClient();
@@ -19,6 +20,7 @@ export default async function CustomersPage() {
   }
 
   const initialCustomers: Customer[] = data ?? [];
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
 
-  return <CustomersClient initialCustomers={initialCustomers} />;
+  return <CustomersClient initialCustomers={initialCustomers} currentPlan={currentPlan.name} />;
 }
