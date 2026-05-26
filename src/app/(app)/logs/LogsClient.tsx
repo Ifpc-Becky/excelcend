@@ -208,7 +208,7 @@ export default function LogsClient({
             </p>
           </div>
           {logs.length > 0 && (
-            <button className="btn-secondary" disabled title="準備中">
+            <button className="btn-secondary" disabled title="CSVエクスポートはStandardプラン以上で利用できます。">
               <Download size={15} />
               CSVエクスポート
             </button>
@@ -313,7 +313,9 @@ export default function LogsClient({
                             disabled={isResending || !canResend}
                             title={
                               !canResend
-                                ? "PDFが紐付いていないため再送できません"
+                                ? (!canResendByPlan
+                                    ? "再送機能はStandardプラン以上で利用できます。"
+                                    : "PDFが紐付いていないため再送できません")
                                 : "このメールを再送する"
                             }
                             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
