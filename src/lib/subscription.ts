@@ -1,18 +1,18 @@
 import Stripe from "stripe";
 
-export type SubscriptionPlan = "未契約" | "Starter" | "Standard" | "Business";
+export type SubscriptionPlan = "Free" | "Starter" | "Standard" | "Business";
 
 interface CurrentSubscriptionPlan {
   name: SubscriptionPlan;
   isSubscribed: boolean;
 }
 
-const UNCONTRACTED_PLAN: CurrentSubscriptionPlan = {
-  name: "未契約",
+const FREE_PLAN: CurrentSubscriptionPlan = {
+  name: "Free",
   isSubscribed: false,
 };
 
-const priceIdToPlan: Record<string, Exclude<SubscriptionPlan, "未契約"> | undefined> = {
+const priceIdToPlan: Record<string, Exclude<SubscriptionPlan, "Free"> | undefined> = {
   ...(process.env.STRIPE_PRICE_ID_STARTER
     ? { [process.env.STRIPE_PRICE_ID_STARTER]: "Starter" as const }
     : {}),
@@ -36,9 +36,9 @@ function getStripeClient() {
 function planFromSubscription(subscription: Stripe.Subscription): CurrentSubscriptionPlan {
   const plan = subscription.items.data
     .map((item) => priceIdToPlan[item.price.id])
-    .find((name): name is Exclude<SubscriptionPlan, "未契約"> => Boolean(name));
+    .find((name): name is Exclude<SubscriptionPlan, "Free"> => Boolean(name));
 
-  if (!plan) return UNCONTRACTED_PLAN;
+  if (!plan) return FREE_PLAN;
 
   return {
     name: plan,
@@ -51,7 +51,7 @@ export async function getCurrentSubscriptionPlan(
   userEmail?: string | null
 ): Promise<CurrentSubscriptionPlan> {
   const stripe = getStripeClient();
-  if (!stripe || !userEmail) return UNCONTRACTED_PLAN;
+  if (!stripe || !userEmail) return FREE_PLAN;
 
   try {
     const customers = await stripe.customers.list({ email: userEmail, limit: 100 });
@@ -76,5 +76,5 @@ export async function getCurrentSubscriptionPlan(
     console.error("[subscription] Stripe subscription fetch error:", error);
   }
 
-  return UNCONTRACTED_PLAN;
+  return FREE_PLAN;
 }
