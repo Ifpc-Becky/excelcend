@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentSubscriptionPlan } from "@/lib/subscription";
+import { getCurrentSubscriptionPlan, getMonthlyEmailLimit } from "@/lib/subscription";
 import {
   FileSpreadsheet,
   TrendingUp,
@@ -132,6 +132,7 @@ export default async function DashboardPage({
   const greeting    = companyName ?? "ようこそ";
 
   const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+  const monthlyLimit = getMonthlyEmailLimit(currentPlan.name);
 
   // -------------------------------------------------------
   // レンダリング
@@ -189,11 +190,13 @@ export default async function DashboardPage({
             )}
           </div>
           <p className="font-display text-2xl font-bold text-slate-900">
-            {thisMonthCount}
+            {monthlyLimit === null ? `${thisMonthCount} / 無制限` : `${thisMonthCount} / ${monthlyLimit}`}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">今月の送信数</p>
           <p className="text-xs text-slate-400 mt-1">
-            {thisMonthCount === 0 ? "今月まだ送信なし" : `今月 ${thisMonthCount} 件送信`}
+            {monthlyLimit === null
+              ? (thisMonthCount === 0 ? "今月まだ送信なし" : `今月 ${thisMonthCount} 件送信`)
+              : `${thisMonthCount} / ${monthlyLimit} 通`}
           </p>
         </div>
 

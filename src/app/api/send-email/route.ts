@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { buildEmailHtml, toJapaneseError } from "@/lib/email";
+import { getCurrentSubscriptionPlan, getMonthlyEmailLimit } from "@/lib/subscription";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const resendFrom = process.env.RESEND_FROM_EMAIL;
@@ -79,7 +80,44 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ④ pdf-files バケットから PDF をダウンロード
+  // ④ プランごとの月間送信上限チェック（成功送信のみ対象）
+  if (user) {
+    const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+    const monthlyLimit = getMonthlyEmailLimit(currentPlan.name);
+
+    if (monthlyLimit !== null) {
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0, 0, 0, 0);
+
+      const { count: thisMonthSentCount, error: usageError } = await supabase
+        .from("send_logs")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("status", "sent")
+        .gte("created_at", monthStart.toISOString());
+
+      if (usageError) {
+        console.error("[send-email] monthly usage fetch error:", usageError);
+        return NextResponse.json(
+          { error: "送信数の確認に失敗しました。時間をおいて再度お試しください。" },
+          { status: 500 }
+        );
+      }
+
+      if ((thisMonthSentCount ?? 0) >= monthlyLimit) {
+        return NextResponse.json(
+          {
+            error: "今月の送信上限に達しました。\nプランをアップグレードすると、さらに送信できます。",
+            errorCode: "MONTHLY_SEND_LIMIT_REACHED",
+          },
+          { status: 403 }
+        );
+      }
+    }
+  }
+
+  // ⑤ pdf-files バケットから PDF をダウンロード
   const { data: fileData, error: downloadError } = await supabase.storage
     .from("pdf-files")
     .download(pdfPath);
@@ -92,7 +130,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ⑤ Blob → ArrayBuffer → Buffer
+  // ⑥ Blob → ArrayBuffer → Buffer
   let fileBuffer: Buffer;
   try {
     const arrayBuffer = await fileData.arrayBuffer();
@@ -113,7 +151,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ⑥ Resend でメール送信
+  // ⑦ Resend でメール送信
   const { data, error } = await resend.emails.send({
     from: `ExcelCend <${resendFrom}>`,
     to: [to],
@@ -150,7 +188,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: toJapaneseError(msg) }, { status: 500 });
   }
 
-  // ⑦ 送信成功ログを DB に保存
+  // ⑧ 送信成功ログを DB に保存
   if (user) {
     const { error: logError } = await supabase.from("send_logs").insert({
       user_id:          user.id,
@@ -168,7 +206,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ⑧ 顧客を自動登録（同一 company_name + email が未登録の場合のみ）
+  // ⑨ 顧客を自動登録（同一 company_name + email が未登録の場合のみ）
   if (user && companyName && to) {
     const { error: customerError } = await supabase
       .from("customers")
