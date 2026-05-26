@@ -2,6 +2,17 @@ import Stripe from "stripe";
 
 export type SubscriptionPlan = "Free" | "Starter" | "Standard" | "Business";
 
+export const MONTHLY_EMAIL_LIMITS: Record<SubscriptionPlan, number | null> = {
+  Free: 10,
+  Starter: 30,
+  Standard: 100,
+  Business: null,
+};
+
+export function getMonthlyEmailLimit(plan: SubscriptionPlan): number | null {
+  return MONTHLY_EMAIL_LIMITS[plan];
+}
+
 interface CurrentSubscriptionPlan {
   name: SubscriptionPlan;
   isSubscribed: boolean;

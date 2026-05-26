@@ -957,9 +957,20 @@ export default function UploadClient() {
 
                 {/* メール送信エラー（フォーム内） */}
                 {emailError && (
-                  <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 px-3 py-2.5 text-xs text-red-600">
-                    <AlertCircle size={13} className="mt-0.5 flex-shrink-0 text-red-400" />
-                    {emailError}
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 px-3 py-2.5 text-xs text-red-600 whitespace-pre-line">
+                      <AlertCircle size={13} className="mt-0.5 flex-shrink-0 text-red-400" />
+                      {emailError}
+                    </div>
+                    {emailError.includes("今月の送信上限に達しました") && (
+                      <a
+                        href="/pricing"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        プランをアップグレードする
+                        <ArrowRight size={12} />
+                      </a>
+                    )}
                   </div>
                 )}
 
