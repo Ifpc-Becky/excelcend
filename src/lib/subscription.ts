@@ -13,6 +13,26 @@ export function getMonthlyEmailLimit(plan: SubscriptionPlan): number | null {
   return MONTHLY_EMAIL_LIMITS[plan];
 }
 
+export const CUSTOMER_LIMITS: Record<SubscriptionPlan, number | null> = {
+  Free: 5,
+  Starter: 50,
+  Standard: null,
+  Business: null,
+};
+
+export function canUseStandardFeatures(plan: SubscriptionPlan): boolean {
+  return plan === "Standard" || plan === "Business";
+}
+
+export function getCustomerLimit(plan: SubscriptionPlan): number | null {
+  return CUSTOMER_LIMITS[plan];
+}
+
+export function isCustomerLimitReached(plan: SubscriptionPlan, currentCount: number): boolean {
+  const limit = getCustomerLimit(plan);
+  return limit !== null && currentCount >= limit;
+}
+
 interface CurrentSubscriptionPlan {
   name: SubscriptionPlan;
   isSubscribed: boolean;
