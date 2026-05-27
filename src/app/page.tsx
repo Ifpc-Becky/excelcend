@@ -38,9 +38,9 @@ const planCards = [
   {
     name: "Business",
     price: "2,980円/月",
-    sub: "送信数無制限（大量送信向け）",
-    features: ["Standardの全機能", "顧客管理（無制限）"],
-    support: "優先サポート（メール＋Zoom）",
+    sub: "送信数無制限",
+    features: ["Excel→PDF変換", "メール送信（無制限）", "送信ログ閲覧（無制限）", "再送", "顧客管理（無制限）", "CSV取込", "メールテンプレ"],
+    support: "優先メールサポート（2営業日以内）＋Zoomサポート",
     cta: "このプランで始める",
     href: "/pricing",
   },
@@ -124,15 +124,17 @@ export default function Home() {
           <h2 className="text-center text-3xl font-bold">あなたに合ったプランが見つかる、シンプルな料金体系</h2>
           <div className="mt-6 grid gap-4 xl:grid-cols-4 md:grid-cols-2">
             {planCards.map((p) => (
-              <article key={p.name} className={`relative rounded-2xl border bg-white p-5 shadow-sm ${p.name === "Standard" ? "border-blue-500 ring-2 ring-blue-500" : "border-slate-200"}`}>
+              <article key={p.name} className={`relative flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm ${p.name === "Standard" ? "border-blue-500 ring-2 ring-blue-500" : p.name === "Business" ? "border-indigo-300 ring-1 ring-indigo-200" : "border-slate-200"}`}>
                 {p.badge && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white">{p.badge}</span>}
                 <h3 className="text-xl font-bold text-blue-900">{p.name}</h3>
                 <p className="mt-1 text-3xl font-bold">{p.price}</p>
                 <p className="text-sm text-slate-600">{p.sub}</p>
                 <ul className="mt-3 space-y-1 text-sm text-slate-700">{p.features.map((f) => <li key={f}>✓ {f}</li>)}</ul>
                 {p.limits && <ul className="mt-2 space-y-1 text-sm text-slate-500">{p.limits.map((l) => <li key={l}>× {l}</li>)}</ul>}
-                <p className="mt-3 text-xs text-slate-600">サポート：{p.support}</p>
-                <Link href={p.href} className={`mt-4 block rounded-lg px-4 py-2 text-center text-sm font-semibold ${p.name === "Standard" ? "bg-blue-600 text-white" : "border border-slate-300 text-slate-700"}`}>{p.cta}</Link>
+                <div className="mt-auto">
+                  <p className="mt-3 text-xs text-slate-600">サポート：{p.support}</p>
+                  <Link href={p.href} className={`mt-4 block rounded-lg px-4 py-2 text-center text-sm font-semibold ${p.name === "Standard" ? "bg-blue-600 text-white" : p.name === "Business" ? "bg-indigo-600 text-white hover:bg-indigo-700" : "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50"}`}>{p.cta}</Link>
+                </div>
               </article>
             ))}
           </div>
