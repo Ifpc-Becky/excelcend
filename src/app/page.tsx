@@ -1,166 +1,159 @@
+"use client";
+
 import Link from "next/link";
-import { FileSpreadsheet } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, FileSpreadsheet, Upload, FileCheck2, Mail, History } from "lucide-react";
 
-const painPoints = [
-  "ExcelからPDFにする作業が毎回手間",
-  "メール添付・本文作成・送信確認が煩雑",
-  "送信履歴や再送管理が分散して追いづらい",
-];
-
-const features = [
-  "ExcelからPDF変換",
-  "請求書メール送信",
-  "送信ログ",
-  "再送",
-  "顧客管理",
-  "メールテンプレート",
-  "CSVインポート",
-];
-
-const faqs = [
+const planCards = [
   {
-    q: "Excelファイル形式は？",
-    a: "一般的な .xlsx 形式に対応しています。テンプレートの事前確認も可能です。",
+    name: "Free",
+    price: "0円/月",
+    sub: "月10通まで",
+    features: ["Excel→PDF変換", "メール送信", "顧客管理（5件まで）", "送信ログ（30日）"],
+    limits: ["再送なし", "CSV取込なし", "メールテンプレなし"],
+    support: "メールのみ（5営業日以内）",
+    cta: "登録して始める（10通まで無料）",
+    href: "/auth/signup",
   },
   {
-    q: "無料で試せますか？",
-    a: "はい。まずは無料でお試しいただけます。",
+    name: "Starter",
+    price: "390円/月",
+    sub: "月30通まで",
+    features: ["Excel→PDF変換", "メール送信", "顧客管理（50件まで）", "送信ログ（90日）"],
+    limits: ["再送なし", "CSV取込なし", "メールテンプレなし"],
+    support: "メールのみ（5営業日以内）",
+    cta: "このプランで始める",
+    href: "/pricing",
   },
   {
-    q: "支払い方法は？",
-    a: "主要なクレジットカード決済に対応しています。詳細は料金ページをご確認ください。",
+    name: "Standard",
+    badge: "おすすめ",
+    price: "980円/月",
+    sub: "月100通まで",
+    features: ["Excel→PDF変換", "メール送信", "再送機能", "CSV取込", "顧客管理（無制限）", "メールテンプレ", "送信ログ（無制限）"],
+    support: "優先メール対応（2営業日以内）",
+    cta: "このプランで始める",
+    href: "/pricing",
   },
   {
-    q: "請求書以外も送れますか？",
-    a: "帳票フォーマット次第で運用可能です。まずは請求書用途でのご利用を推奨しています。",
+    name: "Business",
+    price: "2,980円/月",
+    sub: "送信数無制限（大量送信向け）",
+    features: ["Standardの全機能", "顧客管理（無制限）"],
+    support: "優先サポート（メール＋Zoom）",
+    cta: "このプランで始める",
+    href: "/pricing",
   },
-  {
-    q: "サポートはありますか？",
-    a: "はい。プランに応じてサポートをご用意しています。",
-  },
-];
-
-const plans = [
-  { name: "Starter", summary: "個人事業主向けの小規模運用に" },
-  { name: "Standard", summary: "中小企業の定常業務を効率化" },
-  { name: "Business", summary: "送信量が多い事業者向け" },
 ];
 
 export default function Home() {
+  const [copied, setCopied] = useState<string | null>(null);
+  const handleCopy = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(code);
+      setTimeout(() => setCopied(null), 1500);
+    } catch {}
+  };
+
   return (
-    <main className="bg-white text-slate-900">
+    <main className="bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <header className="sticky top-0 z-30 flex items-center justify-between rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
-              <FileSpreadsheet size={16} className="text-white" />
-            </div>
-            <span className="font-display text-base font-bold text-slate-900 tracking-tight">ExcelCend</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600"><FileSpreadsheet size={16} className="text-white" /></div>
+            <span className="text-base font-bold tracking-tight">ExcelCend</span>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/pricing" className="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
-              料金
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-            >
-              新規登録
-            </Link>
+            <Link href="/pricing" className="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">料金プラン</Link>
+            <Link href="/auth/login" className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium">ログイン</Link>
+            <Link href="/auth/signup" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">登録して始める（10通まで無料）</Link>
           </div>
         </header>
 
-        <section className="mt-10 rounded-3xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white p-8 sm:p-12">
-          <p className="mb-3 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-            リリース直後の先行利用受付中
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Excel請求書のPDF化・送信をもっとシンプルに。
-          </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-            Excelファイルをアップロードするだけで、PDF変換からメール送信まで一括で完了できます。
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/upload" className="rounded-xl bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700">
-              無料で試す
-            </Link>
-            <Link href="/pricing" className="rounded-xl border border-slate-300 px-5 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">
-              料金を見る
-            </Link>
+        <section className="mt-8 rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-7 shadow-sm sm:p-10">
+          <p className="text-sm font-semibold text-blue-700">＼ Excelの請求書を送る、すべての中小企業・個人事業主の方へ ／</p>
+          <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">Excelの請求書、<br />まだPDFにして送っていますか？</h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700">Excelはそのまま。<br />アップロードするだけで、請求書をかんたん送信。</p>
+          <ul className="mt-6 grid gap-2 text-sm font-medium text-slate-700 sm:grid-cols-2">
+            {["Excelをそのまま使える", "PDF化＋メール送信", "送信ログで履歴管理", "再送もワンクリック（Standard以上）"].map((item) => (
+              <li key={item} className="flex items-center gap-2"><CheckCircle2 size={16} className="text-blue-600" />{item}</li>
+            ))}
+          </ul>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <Link href="/auth/signup" className="rounded-xl bg-blue-600 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700">登録して始める（10通まで無料）</Link>
+            <Link href="/pricing" className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">料金プランを見る</Link>
           </div>
         </section>
 
-        <section className="mt-14">
-          <h2 className="text-2xl font-bold">こんな課題はありませんか？</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {painPoints.map((item) => (
-              <div key={item} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="text-sm leading-6 text-slate-600">{item}</p>
+        <section className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-5 shadow-sm sm:px-6">
+          <h2 className="text-lg font-bold text-amber-900">🎉 先着100社限定｜創業ユーザー特典</h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {[{ n: "Standard", p: "980円 → 690円/月", c: "EARLY100SD" }, { n: "Business", p: "2,980円 → 1,980円/月", c: "EARLY100BIZ" }].map((v) => (
+              <div key={v.c} className="rounded-xl border border-amber-300 bg-white p-4">
+                <p className="text-sm font-semibold">{v.n}</p><p className="mt-1 text-xl font-bold text-rose-700">{v.p}</p>
+                <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-amber-100 px-3 py-2"><code className="text-sm font-bold">{v.c}</code><button type="button" onClick={() => handleCopy(v.c)} className="rounded-md border border-amber-400 bg-white px-2 py-1 text-xs font-semibold">{copied === v.c ? "コピー済み" : "コピー"}</button></div>
               </div>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-slate-600">※先着100社限定 / ※100社到達後は通常価格 / ※決済時にコード入力で適用</p>
+        </section>
+
+        <section className="mt-10 grid gap-5 lg:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-bold">こんなお悩み、ありませんか？</h2>
+            <ul className="mt-4 space-y-3 text-slate-700">
+              {["ExcelをPDF化するのが面倒", "メール添付忘れが不安", "誰に送ったか分からない", "毎回メールを書くのが手間"].map((t) => <li key={t}>・{t}</li>)}
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="text-2xl font-bold text-emerald-700">ExcelCendなら、送信がもっとシンプルに！</h2>
+            <div className="mt-5 grid grid-cols-5 items-center gap-2 text-center text-xs font-semibold sm:text-sm">
+              <div className="rounded-xl bg-slate-50 p-2"><FileSpreadsheet className="mx-auto text-emerald-600" size={20} /><p>Excel</p></div>
+              <div>→</div><div className="rounded-xl bg-slate-50 p-2"><Upload className="mx-auto text-blue-600" size={20} /><p>アップロード</p></div>
+              <div>→</div><div className="rounded-xl bg-slate-50 p-2"><FileCheck2 className="mx-auto text-blue-600" size={20} /><p>PDF化</p></div>
+            </div>
+            <div className="mt-2 grid grid-cols-3 items-center gap-2 text-center text-xs font-semibold sm:text-sm">
+              <div className="rounded-xl bg-slate-50 p-2"><Mail className="mx-auto text-blue-600" size={20} /><p>メール送信</p></div>
+              <div>→</div><div className="rounded-xl bg-slate-50 p-2"><History className="mx-auto text-blue-600" size={20} /><p>履歴保存</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="text-center text-3xl font-bold">あなたに合ったプランが見つかる、シンプルな料金体系</h2>
+          <div className="mt-6 grid gap-4 xl:grid-cols-4 md:grid-cols-2">
+            {planCards.map((p) => (
+              <article key={p.name} className={`relative rounded-2xl border bg-white p-5 shadow-sm ${p.name === "Standard" ? "border-blue-500 ring-2 ring-blue-500" : "border-slate-200"}`}>
+                {p.badge && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white">{p.badge}</span>}
+                <h3 className="text-xl font-bold text-blue-900">{p.name}</h3>
+                <p className="mt-1 text-3xl font-bold">{p.price}</p>
+                <p className="text-sm text-slate-600">{p.sub}</p>
+                <ul className="mt-3 space-y-1 text-sm text-slate-700">{p.features.map((f) => <li key={f}>✓ {f}</li>)}</ul>
+                {p.limits && <ul className="mt-2 space-y-1 text-sm text-slate-500">{p.limits.map((l) => <li key={l}>× {l}</li>)}</ul>}
+                <p className="mt-3 text-xs text-slate-600">サポート：{p.support}</p>
+                <Link href={p.href} className={`mt-4 block rounded-lg px-4 py-2 text-center text-sm font-semibold ${p.name === "Standard" ? "bg-blue-600 text-white" : "border border-slate-300 text-slate-700"}`}>{p.cta}</Link>
+              </article>
             ))}
           </div>
         </section>
 
-        <section className="mt-14 rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
-          <h2 className="text-2xl font-bold">ExcelCendなら3ステップで完了</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {["アップロード", "PDF変換", "メール送信"].map((step, i) => (
-              <div key={step} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="text-xs font-semibold text-blue-700">STEP {i + 1}</p>
-                <p className="mt-2 text-lg font-semibold text-slate-900">{step}</p>
-              </div>
-            ))}
+        <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-center text-3xl font-bold">ExcelCendが選ばれる理由</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4 text-sm">
+            <div className="rounded-xl bg-slate-50 p-4"><p className="font-bold">ExcelのままでOK</p><p className="mt-2 text-slate-600">今ある請求書フォーマットを変える必要なし</p></div>
+            <div className="rounded-xl bg-slate-50 p-4"><p className="font-bold">送信がかんたん</p><p className="mt-2 text-slate-600">アップロードするだけ</p></div>
+            <div className="rounded-xl bg-slate-50 p-4"><p className="font-bold">履歴を自動保存</p><p className="mt-2 text-slate-600">誰にいつ送ったか確認できる</p></div>
+            <div className="rounded-xl bg-slate-50 p-4"><p className="font-bold">安心のセキュリティ</p><p className="mt-2 text-slate-600">通信は安全に管理</p></div>
           </div>
+          <p className="mt-5 text-center text-slate-700">税理士にもおすすめ / 中小企業・個人事業主向け</p>
         </section>
 
-        <section className="mt-14">
-          <h2 className="text-2xl font-bold">主な機能</h2>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <div key={feature} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
-                {feature}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-14 rounded-3xl border border-blue-100 bg-blue-50/40 p-6 sm:p-8">
-          <h2 className="text-2xl font-bold">料金プラン</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {plans.map((plan) => (
-              <div key={plan.name} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="text-lg font-semibold text-slate-900">{plan.name}</p>
-                <p className="mt-2 text-sm text-slate-600">{plan.summary}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6">
-            <Link href="/pricing" className="inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700">
-              料金プランを見る
-            </Link>
-          </div>
-        </section>
-
-        <section className="mt-14">
-          <h2 className="text-2xl font-bold">FAQ</h2>
-          <div className="mt-6 space-y-3">
-            {faqs.map((faq) => (
-              <div key={faq.q} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="font-semibold text-slate-900">{faq.q}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="my-14 rounded-3xl border border-slate-200 bg-slate-900 px-6 py-10 text-center text-white sm:px-10">
-          <h2 className="text-2xl font-bold">まずは1通、無料でお試しください</h2>
-          <p className="mt-3 text-sm text-slate-300">アップロードから送信まで、数分で体験できます。</p>
-          <div className="mt-6">
-            <Link href="/upload" className="inline-flex rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500">
-              請求書をアップロードする
-            </Link>
-          </div>
+        <section className="my-12 rounded-3xl border border-blue-200 bg-blue-600 px-6 py-10 text-center text-white">
+          <h2 className="text-3xl font-bold">まずは無料でお試しください</h2>
+          <p className="mt-2">月10通まで0円で利用できます</p>
+          <Link href="/auth/signup" className="mt-5 inline-block rounded-xl bg-white px-6 py-3 text-sm font-bold text-blue-700">登録して始める（10通まで無料）</Link>
+          <p className="mt-3 text-xs text-blue-100">クレジットカード登録不要・登録30秒</p>
         </section>
       </div>
     </main>
