@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CheckCircle2, FileSpreadsheet, Upload, FileCheck2, Mail, History } from "lucide-react";
+import { CheckCircle2, FileSpreadsheet, Upload, FileCheck2, Mail, History, FileText, Paperclip, Users, PenSquare } from "lucide-react";
 
 const planCards = [
   {
@@ -102,9 +102,25 @@ export default function Home() {
         <section className="mt-10 grid gap-5 lg:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold">こんなお悩み、ありませんか？</h2>
-            <ul className="mt-4 space-y-3 text-slate-700">
-              {["ExcelをPDF化するのが面倒", "メール添付忘れが不安", "誰に送ったか分からない", "毎回メールを書くのが手間"].map((t) => <li key={t}>・{t}</li>)}
-            </ul>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {[
+                { title: "PDF変換が面倒", desc: "Excel請求書を毎回PDF化するのが手間", icon: FileText },
+                { title: "添付漏れが不安", desc: "メール送信時の添付忘れや送信ミスが心配", icon: Paperclip },
+                { title: "誰に送ったかわからない", desc: "送信先や送信履歴の管理が面倒", icon: Users },
+                { title: "毎回メール作成が手間", desc: "件名や本文を毎回入力するのが大変", icon: PenSquare },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <article key={item.title} className="rounded-xl border border-blue-100 bg-white p-4 shadow-sm">
+                    <div className="mb-2 inline-flex rounded-lg border border-blue-200 bg-blue-50 p-2">
+                      <Icon size={18} className="text-blue-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900">{item.title}</h3>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{item.desc}</p>
+                  </article>
+                );
+              })}
+            </div>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-emerald-700">ExcelCendなら、送信がもっとシンプルに！</h2>
