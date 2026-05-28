@@ -92,11 +92,11 @@ export default function Home() {
             <div className="relative">
               <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]">
                 <Image
-                  src="/DF2D5699-552F-4441-9C65-3C570BDA32F8.jpeg"
-                  alt="ExcelCendダッシュボード画面"
-                  width={1536}
-                  height={1536}
-                  className="h-auto w-full object-contain"
+                  src="/images/hero-dashboard.png"
+                  alt="ExcelCend ダッシュボード"
+                  width={1000}
+                  height={700}
+                  className="h-auto w-full object-contain drop-shadow-2xl"
                   priority
                 />
               </div>
