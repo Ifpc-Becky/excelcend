@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CheckCircle2, FileSpreadsheet, Upload, FileCheck2, Mail, History, FileText, Paperclip, Users, PenSquare } from "lucide-react";
+import { CheckCircle2, FileSpreadsheet, Upload, Mail, History, FileText, Paperclip, Users, PenSquare } from "lucide-react";
 
 const planCards = [
   {
@@ -124,14 +124,24 @@ export default function Home() {
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-emerald-700">ExcelCendなら、送信がもっとシンプルに！</h2>
-            <div className="mt-5 grid grid-cols-5 items-center gap-2 text-center text-xs font-semibold sm:text-sm">
-              <div className="rounded-xl bg-slate-50 p-2"><FileSpreadsheet className="mx-auto text-emerald-600" size={20} /><p>Excel</p></div>
-              <div>→</div><div className="rounded-xl bg-slate-50 p-2"><Upload className="mx-auto text-blue-600" size={20} /><p>アップロード</p></div>
-              <div>→</div><div className="rounded-xl bg-slate-50 p-2"><FileCheck2 className="mx-auto text-blue-600" size={20} /><p>PDF化</p></div>
-            </div>
-            <div className="mt-2 grid grid-cols-3 items-center gap-2 text-center text-xs font-semibold sm:text-sm">
-              <div className="rounded-xl bg-slate-50 p-2"><Mail className="mx-auto text-blue-600" size={20} /><p>メール送信</p></div>
-              <div>→</div><div className="rounded-xl bg-slate-50 p-2"><History className="mx-auto text-blue-600" size={20} /><p>履歴保存</p></div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {[
+                { title: "ExcelのままでOK", desc: "今ある請求書フォーマットを変更不要", icon: FileSpreadsheet },
+                { title: "アップロード", desc: "ドラッグ＆ドロップですぐ完了", icon: Upload },
+                { title: "メール送信", desc: "請求書をそのまま送信", icon: Mail },
+                { title: "履歴保存", desc: "誰に送ったかすぐ確認", icon: History },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <article key={item.title} className="rounded-xl border border-blue-100 bg-white p-4 shadow-sm">
+                    <div className="mb-2 inline-flex rounded-lg border border-blue-200 bg-blue-50 p-2">
+                      <Icon size={18} className="text-blue-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900">{item.title}</h3>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{item.desc}</p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
