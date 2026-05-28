@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { CheckCircle2, FileSpreadsheet, Upload, Mail, History, FileText, Paperclip, Users, PenSquare } from "lucide-react";
@@ -89,54 +90,16 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="mx-auto w-full max-w-[760px] rounded-[1.8rem] border border-slate-300 bg-slate-900 p-2.5 shadow-[0_24px_60px_rgba(15,23,42,0.28)]">
-                <div className="overflow-hidden rounded-[1.2rem] border border-slate-200 bg-white">
-                  <div className="flex h-9 items-center border-b border-slate-200 bg-slate-50 px-4">
-                    <div className="h-2 w-2 rounded-full bg-slate-300" /><div className="ml-2 h-2 w-2 rounded-full bg-slate-300" /><div className="ml-2 h-2 w-2 rounded-full bg-slate-300" />
-                  </div>
-                  <div className="grid min-h-[390px] grid-cols-[190px_1fr]">
-                    <aside className="border-r border-slate-100 bg-white p-3.5">
-                      <p className="mb-2 text-sm font-bold text-slate-800">ExcelCend</p>
-                      <div className="space-y-1.5 text-xs">
-                        {['ダッシュボード','送信一覧','顧客管理','テンプレート','設定'].map((n,i)=><div key={n} className={`rounded-md px-2.5 py-1.5 ${i===0?'bg-blue-50 text-blue-700':'text-slate-600 hover:bg-slate-50'}`}>{n}</div>)}
-                      </div>
-                    </aside>
-                    <div className="bg-white p-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-base font-bold text-slate-900">ダッシュボード</h3>
-                        <button className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">+ 新しい請求書を送る</button>
-                      </div>
-
-                      <div className="mt-3 grid grid-cols-2 gap-2.5 xl:grid-cols-4 text-[11px]">
-                        {[['今月の送信数','10 / 10','10 / 10 通'],['送信成功率','100 %','19 / 19 件成功'],['送信失敗数','0','失敗なし'],['累計送信数','19','利用開始からの総送信']].map((c)=>
-                          <div key={c[0]} className="rounded-lg border border-slate-200 bg-white p-2.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"><p className="text-slate-500">{c[0]}</p><p className="mt-1 text-xl font-bold text-slate-900">{c[1]}</p><p className="mt-0.5 text-slate-400">{c[2]}</p></div>
-                        )}
-                      </div>
-
-                      <div className="mt-4">
-                        <p className="text-xs font-semibold text-slate-800">クイックアクション</p>
-                        <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3 text-[11px]">
-                          {[["Excelをアップロード","PDF変換して送信"],["顧客を追加","新規顧客を登録"],["送信ログを確認","全履歴を一覧表示"]].map((a)=><div key={a[0]} className="rounded-lg border border-blue-100 bg-blue-50/40 p-2.5"><p className="font-semibold text-slate-800">{a[0]}</p><p className="text-slate-500">{a[1]}</p></div>)}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
-                        <div className="mb-2 flex items-center justify-between"><p className="text-xs font-semibold text-slate-800">最近の送信履歴</p><p className="text-[11px] text-blue-600">すべて表示</p></div>
-                        <div className="space-y-1.5 text-[11px]">
-                          {[
-                            ['株式会社サンプル商事','accounting@sample.example.jp','05/26 15:12'],
-                            ['東京設備株式会社','invoice@tokyosetsubi.example.jp','05/26 15:06'],
-                            ['山田建設株式会社','office@yamada-kensetsu.example.jp','05/26 15:05'],
-                            ['ABCオフィスサービス株式会社','billing@abc-office.example.jp','05/26 14:58'],
-                            ['株式会社みらい工業','info@mirai-kogyo.example.jp','05/26 14:50'],
-                          ].map((row)=><div key={row[1]} className="grid grid-cols-[1.4fr_1.3fr_auto] items-center gap-2 rounded-md border border-slate-100 bg-slate-50 px-2 py-1.5"><span className="truncate text-slate-700">{row[0]}</span><span className="truncate text-slate-500">{row[1]}</span><span className="text-slate-400">{row[2]}</span></div>)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]">
+                <Image
+                  src="/DF2D5699-552F-4441-9C65-3C570BDA32F8.jpeg"
+                  alt="ExcelCendダッシュボード画面"
+                  width={1536}
+                  height={1536}
+                  className="h-auto w-full object-contain"
+                  priority
+                />
               </div>
-              <div className="mx-auto mt-1 h-2.5 w-[90%] rounded-b-full bg-slate-300/70" />
             </div>
           </div>
         </section>
