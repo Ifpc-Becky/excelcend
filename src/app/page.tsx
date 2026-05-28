@@ -159,7 +159,7 @@ export default function Home() {
                 {p.limits && <ul className="mt-2 space-y-1 text-sm text-slate-500">{p.limits.map((l) => <li key={l}>× {l}</li>)}</ul>}
                 <div className="mt-auto">
                   <p className="mt-3 text-xs text-slate-600">サポート：{p.support}</p>
-                  <Link href={p.href} className={`mt-4 block rounded-lg px-4 py-2 text-center text-sm font-semibold transition-all duration-200 ${p.name === "Standard" ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-sm" : "border border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"}`}>{p.cta}</Link>
+                  <Link href={p.href} className={`mt-4 block rounded-lg px-4 py-2 text-center text-sm font-semibold transition-all duration-200 ${p.name === "Standard" ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-sm hover:text-amber-200" : "border border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"}`}>{p.cta}</Link>
                 </div>
               </article>
             ))}
