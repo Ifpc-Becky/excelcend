@@ -72,17 +72,61 @@ export default function Home() {
         </header>
 
         <section className="mt-8 rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-7 shadow-sm sm:p-10">
-          <p className="text-sm font-semibold text-blue-700">＼ Excelの請求書を送る、すべての中小企業・個人事業主の方へ ／</p>
-          <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">Excelの請求書、<br />まだPDFにして送っていますか？</h1>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700">Excelはそのまま。<br />アップロードするだけで、請求書をかんたん送信。</p>
-          <ul className="mt-6 grid gap-2 text-sm font-medium text-slate-700 sm:grid-cols-2">
-            {["Excelをそのまま使える", "PDF化＋メール送信", "送信ログで履歴管理", "再送もワンクリック（Standard以上）"].map((item) => (
-              <li key={item} className="flex items-center gap-2"><CheckCircle2 size={16} className="text-blue-600" />{item}</li>
-            ))}
-          </ul>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Link href="/auth/signup" className="rounded-xl bg-blue-600 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700">登録して始める（10通まで無料）</Link>
-            <Link href="/pricing" className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">料金プランを見る</Link>
+          <div className="grid items-center gap-8 lg:grid-cols-2">
+            <div>
+              <p className="text-sm font-semibold text-blue-700">＼ Excelの請求書を送る、すべての中小企業・個人事業主の方へ ／</p>
+              <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">Excelの請求書、<br />まだPDFにして送っていますか？</h1>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-700">Excelはそのまま。<br />アップロードするだけで、請求書をかんたん送信。</p>
+              <ul className="mt-6 grid gap-2 text-sm font-medium text-slate-700 sm:grid-cols-2">
+                {["Excelをそのまま使える", "PDF化＋メール送信", "送信ログで履歴管理", "再送もワンクリック（Standard以上）"].map((item) => (
+                  <li key={item} className="flex items-center gap-2"><CheckCircle2 size={16} className="text-blue-600" />{item}</li>
+                ))}
+              </ul>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Link href="/auth/signup" className="rounded-xl bg-blue-600 px-6 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700">登録して始める（10通まで無料）</Link>
+                <Link href="/pricing" className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50">料金プランを見る</Link>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="mx-auto w-full max-w-[620px] rotate-0 rounded-[1.7rem] border border-slate-300 bg-slate-900 p-2.5 shadow-[0_20px_50px_rgba(15,23,42,0.24)]">
+                <div className="rounded-[1.1rem] bg-white overflow-hidden border border-slate-200">
+                  <div className="h-9 border-b border-slate-200 bg-slate-50 px-4 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-slate-300" />
+                    <div className="ml-2 h-2 w-2 rounded-full bg-slate-300" />
+                    <div className="ml-2 h-2 w-2 rounded-full bg-slate-300" />
+                  </div>
+                  <div className="grid grid-cols-[180px_1fr] min-h-[330px]">
+                    <aside className="border-r border-slate-100 p-3 bg-white">
+                      <div className="space-y-1.5 text-xs">
+                        {['ダッシュボード','アップロード','送信ログ','顧客管理','設定'].map((n,i)=><div key={n} className={`rounded-md px-2 py-1.5 ${i===0?'bg-blue-50 text-blue-700':'text-slate-600'}`}>{n}</div>)}
+                      </div>
+                    </aside>
+                    <div className="p-4 bg-slate-50">
+                      <h3 className="text-sm font-bold text-slate-900">ダッシュボード</h3>
+                      <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
+                        <div className="rounded-lg border border-slate-200 bg-white p-2"><p className="text-slate-500">今月送信</p><p className="font-bold text-slate-900">24 / 100</p></div>
+                        <div className="rounded-lg border border-slate-200 bg-white p-2"><p className="text-slate-500">成功率</p><p className="font-bold text-slate-900">98%</p></div>
+                        <div className="rounded-lg border border-slate-200 bg-white p-2"><p className="text-slate-500">送信失敗</p><p className="font-bold text-slate-900">1</p></div>
+                      </div>
+                      <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
+                        <p className="text-xs font-semibold text-slate-800">送信履歴（最新）</p>
+                        <div className="mt-2 space-y-1.5 text-[11px]">
+                          {[
+                            ['株式会社サンプル商事','accounting@sample.example.jp'],
+                            ['東京設備株式会社','invoice@tokyosetsubi.example.jp'],
+                            ['山田建設株式会社','office@yamada-kensetsu.example.jp'],
+                            ['ABCオフィスサービス株式会社','billing@abc-office.example.jp'],
+                            ['株式会社みらい工業','info@mirai-kogyo.example.jp'],
+                          ].map((row)=><div key={row[1]} className="flex items-center justify-between rounded-md border border-slate-100 bg-slate-50 px-2 py-1"><span className="truncate pr-2 text-slate-700">{row[0]}</span><span className="text-slate-500">送信済み</span></div>)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="mx-auto mt-1 h-2.5 w-[88%] rounded-b-full bg-slate-300/70" />
+            </div>
           </div>
         </section>
 
