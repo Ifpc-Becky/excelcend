@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { CheckCircle2, FileSpreadsheet, Upload, Mail, History, FileText, Paperclip, Users, PenSquare } from "lucide-react";
@@ -47,6 +46,114 @@ const planCards = [
   },
 ];
 
+const heroStats = [
+  { label: "今月の送信数", value: "10 / 10", note: "10 / 10 通" },
+  { label: "送信成功率", value: "100%", note: "19 / 19 件成功" },
+  { label: "送信失敗数", value: "0", note: "失敗なし" },
+  { label: "累計送信数", value: "19", note: "利用開始からの総送信" },
+];
+
+const heroActions = [
+  { title: "Excelをアップロード", note: "PDF変換して送信", icon: FileSpreadsheet },
+  { title: "顧客を追加", note: "新規顧客を登録", icon: Users },
+  { title: "送信ログを確認", note: "全履歴を一覧表示", icon: History },
+];
+
+const heroLogs = [
+  ["株式会社サンプル商事", "送信完了", "accounting@sample.example.jp", "05/26 15:12"],
+  ["東京設備株式会社", "閲覧済み", "invoice@tokyosetsubi.example.jp", "05/26 15:06"],
+  ["山田建設株式会社", "送信完了", "office@yamada-kensetsu.example.jp", "05/26 15:05"],
+  ["ABCオフィスサービス株式会社", "送信完了", "billing@abc-office.example.jp", "05/26 14:58"],
+  ["株式会社みらい工業", "送信完了", "info@mirai-kogyo.example.jp", "05/26 14:50"],
+];
+
+function HeroDashboardMock() {
+  return (
+    <div className="relative mx-auto w-full max-w-[760px] overflow-hidden rounded-[1.6rem] border border-slate-200 bg-slate-950 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.22)]">
+      <div className="overflow-hidden rounded-[1.05rem] border border-slate-200 bg-white">
+        <div className="grid min-h-[360px] grid-cols-[112px_minmax(0,1fr)] bg-white sm:grid-cols-[150px_minmax(0,1fr)]">
+          <aside className="border-r border-slate-100 bg-white p-3 sm:p-4">
+            <div className="mb-5 flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white">
+                <FileSpreadsheet size={14} />
+              </div>
+              <span className="hidden text-sm font-bold text-slate-900 sm:inline">ExcelCend</span>
+            </div>
+            <nav className="space-y-1 text-[10px] font-medium sm:text-xs">
+              {["ダッシュボード", "送信一覧", "顧客管理", "テンプレート", "設定"].map((item, index) => (
+                <div
+                  key={item}
+                  className={`truncate rounded-lg px-2 py-2 ${
+                    index === 0 ? "bg-blue-50 text-blue-700" : "text-slate-600"
+                  }`}
+                >
+                  {item}
+                </div>
+              ))}
+            </nav>
+          </aside>
+
+          <div className="min-w-0 bg-white p-3 sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-base font-bold text-slate-950 sm:text-lg">ダッシュボード</h3>
+              <button className="shrink-0 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[10px] font-semibold text-white shadow-sm sm:px-3 sm:text-xs">
+                ＋ 新しい請求書を送る
+              </button>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
+              {heroStats.map((stat) => (
+                <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm sm:p-3">
+                  <p className="truncate text-[10px] font-medium text-slate-500 sm:text-xs">{stat.label}</p>
+                  <p className="mt-2 text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">{stat.value}</p>
+                  <p className="mt-1 truncate text-[10px] text-slate-500 sm:text-xs">{stat.note}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs font-bold text-slate-900 sm:text-sm">クイックアクション</p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                {heroActions.map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <div key={action.title} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                        <Icon size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[10px] font-bold text-slate-900 sm:text-xs">{action.title}</p>
+                        <p className="truncate text-[10px] text-slate-500">{action.note}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
+                <p className="text-xs font-bold text-slate-900 sm:text-sm">最近の送信履歴</p>
+                <span className="text-[10px] font-semibold text-blue-600 sm:text-xs">すべて表示</span>
+              </div>
+              <div className="divide-y divide-slate-100 text-[10px] sm:text-xs">
+                {heroLogs.map(([company, status, email, date]) => (
+                  <div key={email} className="grid grid-cols-[1.15fr_0.65fr] gap-2 px-3 py-2 sm:grid-cols-[1.1fr_0.65fr_1.35fr_0.65fr]">
+                    <span className="truncate font-semibold text-slate-800">{company}</span>
+                    <span className="truncate font-medium text-emerald-600">{status}</span>
+                    <span className="hidden truncate text-slate-500 sm:block">{email}</span>
+                    <span className="hidden truncate text-right text-slate-500 sm:block">{date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [copied, setCopied] = useState<string | null>(null);
   const handleCopy = async (code: string) => {
@@ -89,17 +196,8 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative">
-              <div className="mx-auto w-full max-w-[760px] overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.16)]">
-                <Image
-                  src="/images/hero-dashboard.png"
-                  alt="ExcelCend ダッシュボード"
-                  width={1000}
-                  height={700}
-                  className="h-auto w-full object-contain drop-shadow-2xl"
-                  priority
-                />
-              </div>
+            <div className="relative lg:-mr-6">
+              <HeroDashboardMock />
             </div>
           </div>
         </section>
