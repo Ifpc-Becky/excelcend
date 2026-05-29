@@ -69,8 +69,8 @@ const heroLogs = [
 
 function HeroDashboardMock() {
   return (
-    <div className="relative mx-auto w-full max-w-[980px] lg:w-[155%] lg:max-w-none">
-      <div className="relative overflow-hidden rounded-t-[1.7rem] rounded-b-xl border border-slate-800 bg-slate-950 p-2.5 shadow-[0_30px_80px_rgba(15,23,42,0.30)]">
+    <div className="relative mx-auto w-full max-w-[760px] lg:w-[760px] lg:max-w-none lg:scale-[1.18]">
+      <div className="relative overflow-hidden rounded-t-[1.7rem] rounded-b-xl border border-slate-800 bg-slate-950 p-2.5 shadow-2xl shadow-slate-900/25">
         <div className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-slate-700 ring-1 ring-slate-600" />
         <div className="mt-2 overflow-hidden rounded-[1.05rem] border border-slate-200 bg-white">
           <div className="grid min-h-[400px] grid-cols-[118px_minmax(0,1fr)] bg-white sm:grid-cols-[170px_minmax(0,1fr)]">
@@ -186,7 +186,7 @@ export default function Home() {
         </header>
 
         <section className="mt-8 rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-7 shadow-sm sm:p-10">
-          <div className="grid items-center gap-8 lg:grid-cols-2">
+          <div className="grid items-center gap-8 lg:grid-cols-[45%_55%]">
             <div>
               <p className="text-sm font-semibold text-blue-700">＼ Excelの請求書を送る、すべての中小企業・個人事業主の方へ ／</p>
               <h1 className="mt-3 text-4xl font-bold leading-tight sm:text-5xl">Excelの請求書、<br />まだPDFにして送っていますか？</h1>
@@ -202,7 +202,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative lg:-mr-44">
+            <div className="relative flex items-center justify-center lg:-mr-16">
               <HeroDashboardMock />
             </div>
           </div>
