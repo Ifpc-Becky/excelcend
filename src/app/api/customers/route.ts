@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentSubscriptionPlan, isCustomerLimitReached } from "@/lib/subscription";
 
 // -------------------------------------------------------
 // GET /api/customers — 一覧取得
@@ -11,7 +12,6 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ error: "ログインしていません" }, { status: 401 });
   }
-
   const { data, error } = await supabase
     .from("customers")
     .select("id, company_name, email, contact_name, notes, created_at")
@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "ログインしていません" }, { status: 401 });
   }
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
 
   let companyName: string;
   let email: string;
@@ -65,6 +66,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "リクエストの形式が正しくありません" },
       { status: 400 }
+    );
+  }
+
+  const { count, error: countError } = await supabase
+    .from("customers")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id);
+  if (countError) {
+    return NextResponse.json({ error: "顧客登録数の確認に失敗しました" }, { status: 500 });
+  }
+  if (isCustomerLimitReached(currentPlan.name, count ?? 0)) {
+    return NextResponse.json(
+      { error: "顧客登録数の上限に達しました。プランをアップグレードすると、さらに登録できます。" },
+      { status: 403 }
     );
   }
 

@@ -69,7 +69,7 @@ export function buildEmailHtml(companyName: string, bodyText?: string): string {
           Excelの請求書、そのまま送れてますか？
         </p>
         <a
-          href="https://excelcend.vercel.app"
+          href="https://excelcend.com"
           target="_blank"
           rel="noopener noreferrer"
           style="display: inline-block; background: #2563eb; color: #ffffff; font-size: 13px; font-weight: 600; text-decoration: none; padding: 10px 22px; border-radius: 8px; letter-spacing: 0.02em;"

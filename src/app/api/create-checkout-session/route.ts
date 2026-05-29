@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-02-24.acacia",
-});
+function getStripeClient() {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY が設定されていません");
+  }
+
+  return new Stripe(secretKey, {
+    apiVersion: "2025-02-24.acacia",
+  });
+}
 
 // 許可されたPrice IDのホワイトリスト（環境変数から構築）
 function getAllowedPriceIds(): Set<string> {
@@ -54,12 +61,15 @@ export async function POST(req: NextRequest) {
   }
 
   // ④ ベースURL取得
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") ||
-    `https://${req.headers.get("host")}`;
+    process.env.VERCEL_ENV === "production"
+      ? "https://excelcend.com"
+      : appUrl || "https://excelcend.com";
 
   // ⑤ Stripe Checkout Session 作成
   try {
+    const stripe = getStripeClient();
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],

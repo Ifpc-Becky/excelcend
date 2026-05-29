@@ -243,19 +243,26 @@ export default function UploadClient() {
   const [pdfPath,       setPdfPath]       = useState<string | null>(null);
 
   // メール送信
-  const DEFAULT_COMPANY = "株式会社イフペック";
   const buildSubject = (company: string) => `${company}より請求書を送付いたしました`;
+  const buildAutoSubject = (company: string, template?: string | null) => {
+    if (!company.trim()) return "";
+    return template
+      ? template.replace(/\{companyName\}/g, company)
+      : buildSubject(company);
+  };
 
   const [emailStatus,     setEmailStatus]     = useState<EmailStatus>("idle");
   const [emailError,      setEmailError]       = useState<string | null>(null);
   const [emailTo,         setEmailTo]          = useState("");
-  const [companyName,     setCompanyName]      = useState(DEFAULT_COMPANY);
-  const [emailSubject,    setEmailSubject]     = useState(buildSubject(DEFAULT_COMPANY));
+  const [accountCompanyName, setAccountCompanyName] = useState("");
+  const [companyName,     setCompanyName]      = useState("");
+  const [emailSubject,    setEmailSubject]     = useState("");
   const [isSubjectEdited, setIsSubjectEdited]  = useState(false);
   const [emailBody,       setEmailBody]        = useState(""); // テンプレート本文
   const [isBodyEdited,    setIsBodyEdited]     = useState(false); // 手動編集フラグ
   const [sentTo,          setSentTo]           = useState<string | null>(null);
   const [sentCompany,     setSentCompany]      = useState<string | null>(null);
+  const [isGuest,         setIsGuest]          = useState(false);
 
   // テンプレート（件名・本文のプレースホルダー元）
   const [mailTemplate, setMailTemplate] = useState<MailTemplate | null>(null);
@@ -264,34 +271,74 @@ export default function UploadClient() {
   const [customers,        setCustomers]        = useState<CustomerOption[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>("");
 
-  // マウント時: テンプレートと顧客を並行取得
+  // マウント時: ログイン状態を確認し、ログインユーザーのみテンプレートと顧客を取得
   useEffect(() => {
-    // テンプレート取得
-    fetch("/api/mail-templates")
-      .then((r) => r.ok ? r.json() : null)
-      .then((tpl: MailTemplate | null) => {
-        if (!tpl) return;
+    let cancelled = false;
+
+    const initializeEmailDefaults = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // ゲストは送信元会社名を空のままにする（placeholder のみ表示）
+      if (!user) {
+        if (!cancelled) {
+          setIsGuest(true);
+          setAccountCompanyName("");
+          setCompanyName("");
+          setEmailSubject("");
+          setEmailBody("");
+          setCustomers([]);
+        }
+        return;
+      }
+
+      const profileCompanyName =
+        typeof user.user_metadata?.company_name === "string"
+          ? user.user_metadata.company_name
+          : "";
+
+      if (!cancelled) {
+        setIsGuest(false);
+        setAccountCompanyName(profileCompanyName);
+        setCompanyName(profileCompanyName);
+        if (!isSubjectEdited) {
+          setEmailSubject(buildAutoSubject(profileCompanyName));
+        }
+      }
+
+      const [templateResponse, customersResponse] = await Promise.all([
+        fetch("/api/mail-templates"),
+        fetch("/api/customers"),
+      ]);
+
+      if (cancelled) return;
+
+      if (templateResponse.ok) {
+        const tpl: MailTemplate = await templateResponse.json();
         setMailTemplate(tpl);
         // 件名: 手動編集していない場合のみ反映
-        if (tpl.subject_template && !isSubjectEdited) {
-          setEmailSubject(
-            tpl.subject_template.replace(/\{companyName\}/g, DEFAULT_COMPANY)
-          );
+        if (!isSubjectEdited) {
+          setEmailSubject(buildAutoSubject(profileCompanyName, tpl.subject_template));
         }
         // 本文: 手動編集していない場合のみ反映
         if (!isBodyEdited) {
           setEmailBody(
-            tpl.body_template.replace(/\{companyName\}/g, DEFAULT_COMPANY)
+            tpl.body_template.replace(/\{companyName\}/g, profileCompanyName)
           );
         }
-      })
-      .catch(() => {});
+      }
 
-    // 顧客取得
-    fetch("/api/customers")
-      .then((r) => r.ok ? r.json() : [])
-      .then((data: CustomerOption[]) => setCustomers(data))
-      .catch(() => {});
+      if (customersResponse.ok) {
+        const data: CustomerOption[] = await customersResponse.json();
+        setCustomers(data);
+      }
+    };
+
+    initializeEmailDefaults().catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -331,12 +378,12 @@ export default function UploadClient() {
     setConvertStatus("idle"); setConvertError(null);  setPdfPath(null);
     setEmailStatus("idle");   setEmailError(null);    setSentTo(null);       setSentCompany(null);
     setEmailTo("");
-    setCompanyName(DEFAULT_COMPANY);
-    setEmailSubject(buildSubject(DEFAULT_COMPANY));
+    setCompanyName(accountCompanyName);
+    setEmailSubject(buildAutoSubject(accountCompanyName, mailTemplate?.subject_template));
     setIsSubjectEdited(false);
     setEmailBody(
       mailTemplate
-        ? mailTemplate.body_template.replace(/\{companyName\}/g, DEFAULT_COMPANY)
+        ? mailTemplate.body_template.replace(/\{companyName\}/g, accountCompanyName)
         : ""
     );
     setIsBodyEdited(false);
@@ -358,6 +405,7 @@ export default function UploadClient() {
 
       const timestamp = Date.now();
       const safeName = selected.file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      setIsGuest(!user);
       const userId = user?.id || "guest";
       const storagePath = `uploads/${userId}/${timestamp}_${safeName}`;
 
@@ -744,10 +792,8 @@ export default function UploadClient() {
                         if (!id) return;
                         const c = customers.find((c) => c.id === id);
                         if (!c) return;
-                        // 会社名・メール自動入力
+                        // 顧客選択では送信先メールのみ自動入力（送信元会社名はアカウント/手入力を維持）
                         setEmailTo(c.email);
-                        setCompanyName(c.company_name);
-                        if (!isSubjectEdited) setEmailSubject(buildSubject(c.company_name));
                       }}
                       className="input-field"
                       disabled={false}
@@ -761,7 +807,7 @@ export default function UploadClient() {
                     </select>
                     {selectedCustomer && (
                       <p className="text-xs text-blue-600 mt-1">
-                        会社名・メールアドレスを自動入力しました。手動で変更できます。
+                        メールアドレスを自動入力しました。手動で変更できます。
                       </p>
                     )}
                   </div>
@@ -782,11 +828,7 @@ export default function UploadClient() {
                       setEmailError(null);
                       // 件名: 手動編集していない場合のみ自動更新
                       if (!isSubjectEdited) {
-                        if (mailTemplate?.subject_template) {
-                          setEmailSubject(mailTemplate.subject_template.replace(/\{companyName\}/g, val));
-                        } else {
-                          setEmailSubject(buildSubject(val));
-                        }
+                        setEmailSubject(buildAutoSubject(val, mailTemplate?.subject_template));
                       }
                       // 本文: 手動編集していない場合のみ自動更新
                       if (!isBodyEdited && mailTemplate?.body_template) {
@@ -826,9 +868,7 @@ export default function UploadClient() {
                       <button
                         type="button"
                         onClick={() => {
-                          const rebuilt = mailTemplate?.subject_template
-                            ? mailTemplate.subject_template.replace(/\{companyName\}/g, companyName)
-                            : buildSubject(companyName);
+                          const rebuilt = buildAutoSubject(companyName, mailTemplate?.subject_template);
                           setEmailSubject(rebuilt);
                           setIsSubjectEdited(false);
                         }}
@@ -917,9 +957,20 @@ export default function UploadClient() {
 
                 {/* メール送信エラー（フォーム内） */}
                 {emailError && (
-                  <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 px-3 py-2.5 text-xs text-red-600">
-                    <AlertCircle size={13} className="mt-0.5 flex-shrink-0 text-red-400" />
-                    {emailError}
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-100 px-3 py-2.5 text-xs text-red-600 whitespace-pre-line">
+                      <AlertCircle size={13} className="mt-0.5 flex-shrink-0 text-red-400" />
+                      {emailError}
+                    </div>
+                    {emailError.includes("今月の送信上限に達しました") && (
+                      <a
+                        href="/pricing"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                      >
+                        プランをアップグレードする
+                        <ArrowRight size={12} />
+                      </a>
+                    )}
                   </div>
                 )}
 
@@ -1000,16 +1051,31 @@ export default function UploadClient() {
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <button onClick={resetAll} className="btn-secondary">
-                  <RefreshCw size={15} />
-                  続けて別のファイルを送る
-                </button>
-                <button onClick={() => router.push("/dashboard")} className="btn-primary">
-                  ダッシュボードへ
-                  <ArrowRight size={15} />
-                </button>
-              </div>
+              {isGuest ? (
+                <div className="flex flex-col items-center gap-5">
+                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                    {`体験いただきありがとうございます。
+無料体験で送信できる請求書は1通までです。
+続けて請求書を送信するには、会員登録が必要です。
+登録後は送信履歴の確認や、顧客情報の保存もできます。`}
+                  </p>
+                  <button onClick={() => router.push("/auth/signup")} className="btn-primary">
+                    無料登録して続ける
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-3">
+                  <button onClick={resetAll} className="btn-secondary">
+                    <RefreshCw size={15} />
+                    続けて別のファイルを送る
+                  </button>
+                  <button onClick={() => router.push("/dashboard")} className="btn-primary">
+                    ダッシュボードへ
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

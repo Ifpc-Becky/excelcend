@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useCallback, useRef } from "react";
 import {
   Plus,
@@ -17,6 +18,7 @@ import {
   FileText,
   X,
 } from "lucide-react";
+import { canUseStandardFeatures, getCustomerLimit, isCustomerLimitReached, type SubscriptionPlan } from "@/lib/subscription";
 
 // -------------------------------------------------------
 // 型定義
@@ -67,8 +69,10 @@ function EmptyState({ onShowForm }: { onShowForm: () => void }) {
 // -------------------------------------------------------
 export default function CustomersClient({
   initialCustomers,
+  currentPlan,
 }: {
   initialCustomers: Customer[];
+  currentPlan: SubscriptionPlan;
 }) {
   const [customers,  setCustomers]  = useState<Customer[]>(initialCustomers);
   const [showForm,   setShowForm]   = useState(false);
@@ -96,6 +100,10 @@ export default function CustomersClient({
   } | null>(null);
   const [csvError,      setCsvError]       = useState<string | null>(null);
 
+  const canUseCsvImport = canUseStandardFeatures(currentPlan);
+  const customerLimit = getCustomerLimit(currentPlan);
+  const customerLimitReached = isCustomerLimitReached(currentPlan, customers.length);
+
   const resetForm = () => {
     setFCompany(""); setFEmail(""); setFContact(""); setFNotes("");
     setFormError(null); setFormSuccess(false);
@@ -105,6 +113,11 @@ export default function CustomersClient({
   // 顧客追加
   // -------------------------------------------------------
   const handleAdd = useCallback(async () => {
+    if (customerLimitReached) {
+      setFormError("顧客登録数の上限に達しました。プランをアップグレードすると、さらに登録できます。");
+      return;
+    }
+
     setFormError(null);
     setFormSuccess(false);
 
@@ -137,7 +150,7 @@ export default function CustomersClient({
     } finally {
       setSubmitting(false);
     }
-  }, [fCompany, fEmail, fContact, fNotes]);
+  }, [customerLimitReached, fCompany, fEmail, fContact, fNotes]);
 
   // -------------------------------------------------------
   // 顧客削除
@@ -178,6 +191,11 @@ export default function CustomersClient({
   // CSV インポート処理
   // -------------------------------------------------------
   const handleCsvImport = useCallback(async () => {
+    if (!canUseCsvImport) {
+      setCsvError("CSV取込はStandardプラン以上で利用できます。");
+      return;
+    }
+
     if (!csvFile) return;
 
     setCsvImporting(true);
@@ -215,7 +233,7 @@ export default function CustomersClient({
     } finally {
       setCsvImporting(false);
     }
-  }, [csvFile, refreshCustomers]);
+  }, [canUseCsvImport, csvFile, refreshCustomers]);
 
   // -------------------------------------------------------
   // レンダリング
@@ -229,17 +247,24 @@ export default function CustomersClient({
           <h1 className="font-display text-2xl font-bold text-slate-900">顧客管理</h1>
           <p className="text-sm text-slate-500 mt-0.5">
             登録顧客の一覧・管理　（全 {customers.length} 件）
+            {customerLimit !== null ? ` / 上限 ${customerLimit} 件` : " / 上限なし"}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
+              if (!canUseCsvImport) {
+                setCsvError("CSV取込はStandardプラン以上で利用できます。");
+                setShowCsvPanel(true);
+                return;
+              }
               setShowCsvPanel((v) => !v);
               setCsvResult(null);
               setCsvError(null);
               setCsvFile(null);
             }}
             className="btn-secondary"
+            title={!canUseCsvImport ? "Standardプラン以上で利用可能" : undefined}
           >
             <Upload size={15} />
             CSVインポート
@@ -247,12 +272,24 @@ export default function CustomersClient({
           <button
             onClick={() => { setShowForm((v) => !v); resetForm(); }}
             className="btn-primary"
+            disabled={customerLimitReached}
           >
             {showForm ? <ChevronUp size={16} /> : <Plus size={16} />}
             {showForm ? "閉じる" : "顧客を追加"}
           </button>
         </div>
       </div>
+
+      {(customerLimitReached || !canUseCsvImport) && (
+        <div className="card p-4 border border-amber-200 bg-amber-50 text-sm text-amber-800">
+          {customerLimitReached
+            ? "顧客登録数の上限に達しました。プランをアップグレードすると、さらに登録できます。"
+            : "CSV取込はStandardプラン以上で利用できます。"}
+          <div className="mt-2">
+            <Link href="/pricing" className="text-amber-900 underline">料金プランを見る</Link>
+          </div>
+        </div>
+      )}
 
       {/* ===== 追加フォーム ===== */}
       {showForm && (

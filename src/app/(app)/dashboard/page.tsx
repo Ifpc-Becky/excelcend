@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentSubscriptionPlan, getMonthlyEmailLimit } from "@/lib/subscription";
 import {
   FileSpreadsheet,
   TrendingUp,
@@ -79,11 +80,12 @@ export default async function DashboardPage({
   if (!user) redirect("/auth/login");
 
   // -------------------------------------------------------
-  // send_logs を一括取得（RLSで自分のデータのみ返る）
+  // send_logs を一括取得（認証ユーザーIDで明示的に絞り込み）
   // -------------------------------------------------------
   const { data: allLogs, error: logsError } = await supabase
     .from("send_logs")
     .select("id, company_name, to_email, subject, status, created_at")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(200); // 統計計算用に多めに取得
 
@@ -96,17 +98,23 @@ export default async function DashboardPage({
   // -------------------------------------------------------
   // 統計計算
   // -------------------------------------------------------
-  const now = new Date();
-  const thisYear  = now.getFullYear();
-  const thisMonth = now.getMonth(); // 0-indexed
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
 
-  // 今月のログ
-  const thisMonthLogs = logs.filter((l) => {
-    const d = new Date(l.created_at);
-    return d.getFullYear() === thisYear && d.getMonth() === thisMonth;
-  });
+  // 今月の送信済みログ数（認証ユーザーIDで明示的に絞り込み）
+  const { count: thisMonthSentCount, error: usageError } = await supabase
+    .from("send_logs")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("status", "sent")
+    .gte("created_at", monthStart.toISOString());
 
-  const thisMonthCount = thisMonthLogs.length;
+  if (usageError) {
+    console.error("[dashboard] monthly usage fetch error:", usageError);
+  }
+
+  const thisMonthCount = thisMonthSentCount ?? 0;
 
   // 送信成功率（全期間）
   const totalCount   = logs.length;
@@ -122,6 +130,9 @@ export default async function DashboardPage({
   // greeting
   const companyName = user.user_metadata?.company_name ?? null;
   const greeting    = companyName ?? "ようこそ";
+
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+  const monthlyLimit = getMonthlyEmailLimit(currentPlan.name);
 
   // -------------------------------------------------------
   // レンダリング
@@ -153,6 +164,9 @@ export default async function DashboardPage({
           <h1 className="font-display text-2xl font-bold text-slate-900">
             ダッシュボード
           </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            現在のプラン: <span className="font-semibold text-blue-700">{currentPlan.name}</span>
+          </p>
         </div>
         <Link href="/upload" className="btn-primary">
           <Plus size={16} />
@@ -176,11 +190,13 @@ export default async function DashboardPage({
             )}
           </div>
           <p className="font-display text-2xl font-bold text-slate-900">
-            {thisMonthCount}
+            {monthlyLimit === null ? `${thisMonthCount} / 無制限` : `${thisMonthCount} / ${monthlyLimit}`}
           </p>
           <p className="text-xs text-slate-500 mt-0.5">今月の送信数</p>
           <p className="text-xs text-slate-400 mt-1">
-            {thisMonthCount === 0 ? "今月まだ送信なし" : `今月 ${thisMonthCount} 件送信`}
+            {monthlyLimit === null
+              ? (thisMonthCount === 0 ? "今月まだ送信なし" : `今月 ${thisMonthCount} 件送信`)
+              : `${thisMonthCount} / ${monthlyLimit} 通`}
           </p>
         </div>
 
@@ -266,7 +282,10 @@ export default async function DashboardPage({
             </div>
           </Link>
 
-          <button className="group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-violet-300 hover:bg-violet-50/50 transition-all text-left">
+          <Link
+            href="/customers"
+            className="group flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-violet-300 hover:bg-violet-50/50 transition-all text-left"
+          >
             <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0 group-hover:bg-violet-200 transition">
               <Users size={20} className="text-violet-600" />
             </div>
@@ -274,7 +293,7 @@ export default async function DashboardPage({
               <p className="text-sm font-semibold text-slate-800">顧客を追加</p>
               <p className="text-xs text-slate-400">新規顧客を登録</p>
             </div>
-          </button>
+          </Link>
 
           <Link
             href="/logs"

@@ -15,7 +15,7 @@ import {
 // プラン定義
 // -------------------------------------------------------
 interface Plan {
-  id:          "starter" | "standard" | "business";
+  id:          "free" | "starter" | "standard" | "business";
   name:        string;
   price:       string;          // 表示用
   priceNote:   string;          // "/月" など
@@ -25,66 +25,100 @@ interface Plan {
   iconColor:   string;
   badge?:      string;          // "人気" など
   features:    string[];
-  priceIdEnv:  string;          // window.__ENV__ からは使わず props で受け取る
+  ctaLabel:    string;
 }
 
 const plans: Plan[] = [
   {
+    id:          "free",
+    name:        "Freeプラン",
+    price:       "¥0",
+    priceNote:   "/ 月",
+    description: "まずは無料でお試し",
+    icon:        Zap,
+    color:       "bg-slate-100",
+    iconColor:   "text-slate-500",
+    features: [
+      "月10通まで送信",
+      "Excel→PDF変換",
+      "メール送信",
+      "送信ログ（30日）",
+      "顧客管理（5件まで）",
+      "再送なし",
+      "CSV取込なし",
+      "メールテンプレなし",
+      "クーポン利用不可",
+      "メールサポート（5営業日以内）",
+    ],
+    ctaLabel:    "登録して始める",
+  },
+  {
     id:          "starter",
     name:        "Starterプラン",
-    price:       "¥980",
-    priceNote:   "/ 月（税込）",
+    price:       "¥390",
+    priceNote:   "/ 月",
     description: "個人・フリーランス向け",
     icon:        Zap,
     color:       "bg-slate-100",
     iconColor:   "text-slate-500",
     features: [
-      "月10件まで送信",
-      "PDF変換",
-      "送信ログ",
-      "顧客管理（10件）",
+      "月30通まで送信",
+      "Excel→PDF変換",
+      "メール送信",
+      "送信ログ（90日）",
+      "顧客管理（50件まで）",
+      "再送なし",
+      "CSV取込なし",
+      "メールテンプレなし",
+      "クーポン利用不可",
+      "メールサポート（5営業日以内）",
     ],
-    priceIdEnv: "STRIPE_PRICE_ID_STARTER",
+    ctaLabel:    "このプランで始める",
   },
   {
     id:          "standard",
     name:        "Standardプラン",
-    price:       "¥2,980",
-    priceNote:   "/ 月（税込）",
+    price:       "¥980",
+    priceNote:   "/ 月",
     description: "中小企業・チーム向け",
     icon:        Building2,
     color:       "bg-blue-600",
     iconColor:   "text-white",
-    badge:       "人気",
+    badge:       "おすすめ",
     features: [
-      "月50件まで送信",
-      "PDF変換",
-      "送信ログ・再送機能",
+      "月100通まで送信",
+      "Excel→PDF変換",
+      "メール送信",
+      "送信ログ（無制限）",
+      "再送機能",
       "顧客管理（無制限）",
-      "CSVインポート",
-      "メールテンプレート",
+      "CSV取込",
+      "メールテンプレ",
+      "優先メールサポート（2営業日以内）",
     ],
-    priceIdEnv: "STRIPE_PRICE_ID_STANDRD",
+    ctaLabel:    "このプランで始める",
   },
   {
     id:          "business",
     name:        "Businessプラン",
-    price:       "¥7,980",
-    priceNote:   "/ 月（税込）",
-    description: "大量送信・複数担当者向け",
+    price:       "¥2,980",
+    priceNote:   "/ 月",
+    description: "大量送信向け",
     icon:        Rocket,
     color:       "bg-violet-100",
     iconColor:   "text-violet-600",
     features: [
-      "月送信無制限",
-      "PDF変換",
-      "送信ログ・再送機能",
+      "送信通数：無制限",
+      "Excel→PDF変換",
+      "メール送信",
+      "送信ログ（無制限）",
+      "再送機能",
       "顧客管理（無制限）",
-      "CSVインポート",
-      "メールテンプレート",
-      "優先サポート",
+      "CSV取込",
+      "メールテンプレ",
+      "優先メールサポート（2営業日以内）＋Zoomサポート",
     ],
-    priceIdEnv: "STRIPE_PRICE_ID_BUSINESS",
+    ctaLabel:    "このプランで始める",
   },
 ];
 
@@ -110,6 +144,7 @@ export default function PricingClient({
   const router = useRouter();
   const [loading,      setLoading]      = useState<string | null>(null); // planId
   const [globalError,  setGlobalError]  = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   // プランID → price_id マッピング
   const priceIdMap: Record<string, string> = {
@@ -122,6 +157,11 @@ export default function PricingClient({
   // Checkout 開始
   // -------------------------------------------------------
   const handleSubscribe = async (planId: string) => {
+    if (planId === "free") {
+      router.push("/auth/signup");
+      return;
+    }
+
     const priceId = priceIdMap[planId];
     if (!priceId) {
       setGlobalError("このプランは現在準備中です。しばらくお待ちください。");
@@ -159,9 +199,28 @@ export default function PricingClient({
     }
   };
 
+  const handleCopyCoupon = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 1600);
+    } catch {
+      setGlobalError("クーポンコードのコピーに失敗しました。");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-16 px-4">
       <div className="max-w-5xl mx-auto">
+
+        <div className="mb-6">
+          <button
+            onClick={() => router.push("/")}
+            className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          >
+            トップへ戻る
+          </button>
+        </div>
 
         {/* ── キャンセル通知 ── */}
         {checkoutStatus === "cancelled" && (
@@ -185,9 +244,46 @@ export default function PricingClient({
             プランを選択
           </h1>
           <p className="text-slate-500 text-sm">
-            すべてのプランに14日間の無料トライアルが付いています。<br />
-            クレジットカードはトライアル終了後に請求されます。
+            料金は月額制です。いつでも解約可能です。<br />
+            お支払いはStripeにて安全に処理されます。
           </p>
+        </div>
+
+        <div className="mb-10 flex justify-center">
+          <div className="w-full max-w-2xl rounded-2xl border border-[#D4AF37] bg-[#FFF9E8] px-4 py-5 text-center shadow-[0_8px_26px_rgba(15,23,42,0.08)] md:px-7 md:py-6">
+            <p className="text-sm font-semibold text-slate-800 md:text-base">
+              ✨ 先着100社限定｜創業ユーザー特典
+            </p>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {[
+                { name: "Standardプラン", code: "EARLY100SD", regular: "通常 ¥980", discounted: "¥690 / 月" },
+                { name: "Businessプラン", code: "EARLY100BIZ", regular: "通常 ¥2,980", discounted: "¥1,980 / 月" },
+              ].map((coupon) => (
+                <div key={coupon.code} className="rounded-xl border border-[#D4AF37]/45 bg-white/70 px-3.5 py-4 text-left shadow-[0_2px_10px_rgba(15,23,42,0.05)]">
+                  <p className="text-xs font-semibold text-slate-600">{coupon.name}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCoupon(coupon.code)}
+                    className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#D4AF37] bg-[#FFF3CC] px-3 py-1.5 text-xs font-bold text-[#7a5a00] transition-colors hover:bg-[#FFEAA8]"
+                  >
+                    <span>{coupon.code}</span>
+                    <span className="text-[11px] font-medium text-[#8a6a0f]">
+                      {copiedCode === coupon.code ? "コピー済み" : "コピー"}
+                    </span>
+                  </button>
+                  <p className="mt-2 text-xs text-slate-500">{coupon.regular}</p>
+                  <p className="text-base font-bold text-slate-900">{coupon.discounted}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 space-y-1 text-xs text-slate-600">
+              <p>※先着100社限定</p>
+              <p>※100社到達後は通常価格</p>
+              <p>※決済時にコード入力で適用</p>
+            </div>
+          </div>
         </div>
 
         {/* ── グローバルエラー ── */}
@@ -199,7 +295,7 @@ export default function PricingClient({
         )}
 
         {/* ── プランカード ── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {plans.map((plan) => {
             const Icon       = plan.icon;
             const isStandard = plan.id === "standard";
@@ -272,7 +368,7 @@ export default function PricingClient({
                   {isLoading ? (
                     <><Loader2 size={15} className="animate-spin" />処理中...</>
                   ) : (
-                    "このプランを選択"
+                    plan.ctaLabel
                   )}
                 </button>
               </div>
@@ -283,10 +379,10 @@ export default function PricingClient({
         {/* ── 補足 ── */}
         <div className="mt-10 text-center space-y-2">
           <p className="text-xs text-slate-400">
-            お支払いは Stripe により安全に処理されます。いつでもキャンセル可能です。
+            料金は月額制です。いつでも解約可能です。
           </p>
           <p className="text-xs text-slate-400">
-            ご不明な点は <span className="text-blue-600">support@excelcend.jp</span> までお問い合わせください。
+            ご不明な点は <span className="text-blue-600">support@excelcend.com</span> までお問い合わせください。
           </p>
         </div>
       </div>

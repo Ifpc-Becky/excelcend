@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ChevronDown, LogOut, User, Bell } from "lucide-react";
+import { ChevronDown, LogOut, User } from "lucide-react";
 
 interface HeaderProps {
   userEmail?: string;
+  currentPlan: string;
 }
 
-export default function Header({ userEmail }: HeaderProps) {
+export default function Header({ userEmail, currentPlan }: HeaderProps) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -23,7 +24,7 @@ export default function Header({ userEmail }: HeaderProps) {
   const initials = userEmail ? userEmail[0].toUpperCase() : "U";
 
   return (
-    <header className="fixed top-0 left-[240px] right-0 h-16 bg-white border-b border-slate-100 flex items-center justify-between px-6 z-10">
+    <header className="sticky top-0 h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-6 z-30">
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold text-slate-900 hidden sm:block">
           請求書送付ダッシュボード
@@ -34,14 +35,10 @@ export default function Header({ userEmail }: HeaderProps) {
         {/* Plan badge */}
         <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-          <span className="text-xs font-semibold text-blue-700">Standardプラン</span>
+          <span className="text-xs font-semibold text-blue-700">{currentPlan}</span>
         </div>
 
-        {/* Notifications */}
-        <button className="relative w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition">
-          <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
-        </button>
+        {/* Notifications (temporarily hidden until feature is implemented) */}
 
         {/* User menu */}
         <div className="relative">
@@ -60,13 +57,19 @@ export default function Header({ userEmail }: HeaderProps) {
 
           {menuOpen && (
             <>
-              <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 top-full mt-1.5 w-52 rounded-xl bg-white border border-slate-100 shadow-lg py-1.5 z-20">
+              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+              <div className="absolute right-0 top-full mt-1.5 w-52 rounded-xl bg-white border border-slate-100 shadow-lg py-1.5 z-50">
                 <div className="px-3.5 py-2 border-b border-slate-100 mb-1">
                   <p className="text-xs text-slate-400">ログイン中</p>
                   <p className="text-sm font-medium text-slate-900 truncate">{userEmail}</p>
                 </div>
-                <button className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 transition">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push("/settings");
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 transition"
+                >
                   <User size={15} className="text-slate-400" />
                   アカウント設定
                 </button>

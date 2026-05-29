@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import SettingsClient, { type MailTemplate } from "./SettingsClient";
+import SettingsClient, { type AccountProfile, type MailTemplate } from "./SettingsClient";
 import {
   DEFAULT_SUBJECT_TEMPLATE,
   DEFAULT_BODY_TEMPLATE,
 } from "@/lib/mail-templates";
+import { getCurrentSubscriptionPlan } from "@/lib/subscription";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -45,5 +46,14 @@ export default async function SettingsPage() {
     };
   }
 
-  return <SettingsClient initialTemplate={template} />;
+  const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+
+  const initialProfile: AccountProfile = {
+    companyName: typeof user.user_metadata?.company_name === "string" ? user.user_metadata.company_name : "",
+    postalCode: typeof user.user_metadata?.postal_code === "string" ? user.user_metadata.postal_code : "",
+    address: typeof user.user_metadata?.address === "string" ? user.user_metadata.address : "",
+    phoneNumber: typeof user.user_metadata?.phone_number === "string" ? user.user_metadata.phone_number : "",
+  };
+
+  return <SettingsClient initialTemplate={template} currentPlan={currentPlan.name} initialProfile={initialProfile} />;
 }

@@ -19,7 +19,12 @@ const navItems = [
   { href: "/settings", label: "設定", icon: Settings },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  monthlySentCount: number;
+  currentPlan: string;
+}
+
+export default function Sidebar({ monthlySentCount, currentPlan }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -67,14 +72,14 @@ export default function Sidebar() {
           className="block rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-3 hover:from-blue-100 hover:to-indigo-100 transition-colors"
         >
           <p className="text-xs text-slate-500 mb-0.5">現在のプラン</p>
-          <p className="text-sm font-semibold text-blue-700">Standardプラン</p>
+          <p className="text-sm font-semibold text-blue-700">{currentPlan}</p>
           <div className="mt-2">
             <div className="flex justify-between text-xs text-slate-400 mb-1">
               <span>今月の送信数</span>
-              <span>12 / 50</span>
+              <span>{monthlySentCount} 件</span>
             </div>
             <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 rounded-full" style={{ width: "24%" }} />
+              <div className="h-full bg-blue-500 rounded-full" style={{ width: "0%" }} />
             </div>
           </div>
           <p className="text-xs text-blue-500 mt-2 font-medium">

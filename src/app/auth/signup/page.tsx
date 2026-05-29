@@ -42,6 +42,20 @@ export default function SignupPage() {
       return;
     }
 
+    try {
+      const res = await fetch("/api/auth/signup-thank-you", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, companyName }),
+      });
+
+      if (!res.ok) {
+        console.error("[signup] thank-you mail failed:", await res.text());
+      }
+    } catch (mailError) {
+      console.error("[signup] thank-you mail request error:", mailError);
+    }
+
     setSuccess(true);
     setLoading(false);
 
@@ -135,7 +149,7 @@ export default function SignupPage() {
 
         <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3">
           {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-          {loading ? "登録中..." : "無料で始める"}
+          {loading ? "登録中..." : "アカウントを作成"}
         </button>
 
         <p className="text-xs text-center text-slate-400">

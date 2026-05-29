@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import { Lock } from "lucide-react";
+import { canUseStandardFeatures, type SubscriptionPlan } from "@/lib/subscription";
 import {
   CheckCircle2,
   XCircle,
@@ -107,13 +109,16 @@ function EmptyState() {
 // -------------------------------------------------------
 export default function LogsClient({
   initialLogs,
+  currentPlan,
 }: {
   initialLogs: SendLog[];
+  currentPlan: SubscriptionPlan;
 }) {
   const [logs,    setLogs]    = useState<SendLog[]>(initialLogs);
   const [toasts,  setToasts]  = useState<Toast[]>([]);
   // { [logId]: true } — 再送実行中のID管理
   const [resending, setResending] = useState<Record<string, boolean>>({});
+  const canResendByPlan = canUseStandardFeatures(currentPlan);
 
   // -------------------------------------------------------
   // トースト表示（3秒で自動消去）
@@ -144,6 +149,11 @@ export default function LogsClient({
   // 再送処理
   // -------------------------------------------------------
   const handleResend = useCallback(async (log: SendLog) => {
+    if (!canResendByPlan) {
+      showToast("error", "再送機能はStandardプラン以上で利用できます。");
+      return;
+    }
+
     if (resending[log.id]) return;
 
     setResending((prev) => ({ ...prev, [log.id]: true }));
@@ -174,7 +184,7 @@ export default function LogsClient({
         return next;
       });
     }
-  }, [resending, showToast, refreshLogs]);
+  }, [canResendByPlan, resending, showToast, refreshLogs]);
 
   // -------------------------------------------------------
   // 統計
@@ -198,7 +208,7 @@ export default function LogsClient({
             </p>
           </div>
           {logs.length > 0 && (
-            <button className="btn-secondary" disabled title="準備中">
+            <button className="btn-secondary" disabled title="CSVエクスポートはStandardプラン以上で利用できます。">
               <Download size={15} />
               CSVエクスポート
             </button>
@@ -252,7 +262,7 @@ export default function LogsClient({
                 <tbody className="divide-y divide-slate-50">
                   {logs.map((log) => {
                     const isResending = !!resending[log.id];
-                    const canResend   = !!log.pdf_path;
+                    const canResend   = !!log.pdf_path && canResendByPlan;
                     return (
                       <tr
                         key={log.id}
@@ -303,7 +313,9 @@ export default function LogsClient({
                             disabled={isResending || !canResend}
                             title={
                               !canResend
-                                ? "PDFが紐付いていないため再送できません"
+                                ? (!canResendByPlan
+                                    ? "再送機能はStandardプラン以上で利用できます。"
+                                    : "PDFが紐付いていないため再送できません")
                                 : "このメールを再送する"
                             }
                             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
@@ -314,7 +326,9 @@ export default function LogsClient({
                                 : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700 active:scale-95"
                               }`}
                           >
-                            {isResending ? (
+                            {!canResendByPlan ? (
+                                    <Lock size={14} className="text-slate-400" />
+                                  ) : isResending ? (
                               <Loader2 size={12} className="animate-spin" />
                             ) : (
                               <RefreshCw size={12} />
