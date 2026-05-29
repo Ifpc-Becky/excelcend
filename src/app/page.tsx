@@ -69,8 +69,8 @@ const heroLogs = [
 
 function HeroDashboardMock() {
   return (
-    <div className="relative mx-auto w-full max-w-[900px] lg:w-[118%]">
-      <div className="relative overflow-hidden rounded-t-[1.7rem] rounded-b-xl border border-slate-800 bg-slate-950 p-2.5 shadow-[0_26px_70px_rgba(15,23,42,0.28)]">
+    <div className="relative mx-auto w-full max-w-[980px] lg:w-[155%] lg:max-w-none">
+      <div className="relative overflow-hidden rounded-t-[1.7rem] rounded-b-xl border border-slate-800 bg-slate-950 p-2.5 shadow-[0_30px_80px_rgba(15,23,42,0.30)]">
         <div className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-slate-700 ring-1 ring-slate-600" />
         <div className="mt-2 overflow-hidden rounded-[1.05rem] border border-slate-200 bg-white">
           <div className="grid min-h-[400px] grid-cols-[118px_minmax(0,1fr)] bg-white sm:grid-cols-[170px_minmax(0,1fr)]">
@@ -153,7 +153,7 @@ function HeroDashboardMock() {
           </div>
         </div>
       </div>
-      <div className="relative mx-auto h-4 w-[92%] rounded-b-[1.8rem] bg-gradient-to-b from-slate-300 to-slate-500 shadow-[0_18px_28px_rgba(15,23,42,0.18)]">
+      <div className="relative mx-auto h-4 w-[92%] rounded-b-[1.8rem] bg-gradient-to-b from-slate-300 to-slate-500 shadow-[0_24px_38px_rgba(15,23,42,0.24)]">
         <div className="absolute left-1/2 top-0 h-1.5 w-28 -translate-x-1/2 rounded-b-xl bg-slate-400/80" />
       </div>
     </div>
@@ -202,7 +202,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative lg:-mr-12">
+            <div className="relative lg:-mr-44">
               <HeroDashboardMock />
             </div>
           </div>
