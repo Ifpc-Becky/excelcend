@@ -90,16 +90,15 @@ export default function Home() {
             </div>
 
             <div className="relative flex items-center justify-center">
-              <div className="w-full max-w-[720px] rounded-2xl bg-white p-1 shadow-2xl shadow-slate-900/20">
-                <Image
-                  src="/images/hero-dashboard.png"
-                  alt="ExcelCend ダッシュボード"
-                  width={1000}
-                  height={700}
-                  priority
-                  className="h-auto w-full rounded-xl object-contain"
-                />
-              </div>
+              <Image
+                src="/images/hero-dashboard.png"
+                alt="ExcelCend ダッシュボード"
+                width={1000}
+                height={700}
+                priority
+                sizes="(min-width: 1024px) 48vw, 100vw"
+                className="h-auto w-full max-w-[760px] object-contain drop-shadow-2xl"
+              />
             </div>
           </div>
         </section>
