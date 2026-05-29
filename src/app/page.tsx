@@ -69,17 +69,19 @@ const heroLogs = [
 
 function HeroDashboardMock() {
   return (
-    <div className="relative mx-auto w-full max-w-[760px] overflow-hidden rounded-[1.6rem] border border-slate-200 bg-slate-950 p-2 shadow-[0_24px_60px_rgba(15,23,42,0.22)]">
-      <div className="overflow-hidden rounded-[1.05rem] border border-slate-200 bg-white">
-        <div className="grid min-h-[360px] grid-cols-[112px_minmax(0,1fr)] bg-white sm:grid-cols-[150px_minmax(0,1fr)]">
-          <aside className="border-r border-slate-100 bg-white p-3 sm:p-4">
-            <div className="mb-5 flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-white">
-                <FileSpreadsheet size={14} />
+    <div className="relative mx-auto w-full max-w-[900px] lg:w-[118%]">
+      <div className="relative overflow-hidden rounded-t-[1.7rem] rounded-b-xl border border-slate-800 bg-slate-950 p-2.5 shadow-[0_26px_70px_rgba(15,23,42,0.28)]">
+        <div className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-slate-700 ring-1 ring-slate-600" />
+        <div className="mt-2 overflow-hidden rounded-[1.05rem] border border-slate-200 bg-white">
+          <div className="grid min-h-[400px] grid-cols-[118px_minmax(0,1fr)] bg-white sm:grid-cols-[170px_minmax(0,1fr)]">
+            <aside className="border-r border-slate-100 bg-white p-3 sm:p-5">
+              <div className="mb-5 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
+                  <FileSpreadsheet size={15} />
+                </div>
+                <span className="hidden text-base font-bold text-slate-900 sm:inline">ExcelCend</span>
               </div>
-              <span className="hidden text-sm font-bold text-slate-900 sm:inline">ExcelCend</span>
-            </div>
-            <nav className="space-y-1 text-[10px] font-medium sm:text-xs">
+              <nav className="space-y-1 text-[11px] font-medium sm:text-sm">
               {["ダッシュボード", "送信一覧", "顧客管理", "テンプレート", "設定"].map((item, index) => (
                 <div
                   key={item}
@@ -91,64 +93,68 @@ function HeroDashboardMock() {
                 </div>
               ))}
             </nav>
-          </aside>
+            </aside>
 
-          <div className="min-w-0 bg-white p-3 sm:p-5">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="text-base font-bold text-slate-950 sm:text-lg">ダッシュボード</h3>
-              <button className="shrink-0 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[10px] font-semibold text-white shadow-sm sm:px-3 sm:text-xs">
+            <div className="min-w-0 bg-white p-3 sm:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-lg font-bold text-slate-950 sm:text-xl">ダッシュボード</h3>
+                <button className="shrink-0 rounded-lg bg-blue-600 px-2.5 py-1.5 text-[10px] font-semibold text-white shadow-sm sm:px-3.5 sm:py-2 sm:text-xs">
                 ＋ 新しい請求書を送る
-              </button>
-            </div>
+                </button>
+              </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
-              {heroStats.map((stat) => (
-                <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm sm:p-3">
-                  <p className="truncate text-[10px] font-medium text-slate-500 sm:text-xs">{stat.label}</p>
-                  <p className="mt-2 text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">{stat.value}</p>
-                  <p className="mt-1 truncate text-[10px] text-slate-500 sm:text-xs">{stat.note}</p>
-                </div>
-              ))}
-            </div>
+              <div className="mt-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+                {heroStats.map((stat) => (
+                  <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-3.5">
+                    <p className="truncate text-[10px] font-medium text-slate-500 sm:text-xs">{stat.label}</p>
+                    <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">{stat.value}</p>
+                    <p className="mt-1 truncate text-[10px] text-slate-500 sm:text-xs">{stat.note}</p>
+                  </div>
+                ))}
+              </div>
 
-            <div className="mt-4">
-              <p className="text-xs font-bold text-slate-900 sm:text-sm">クイックアクション</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <div className="mt-5">
+                <p className="text-sm font-bold text-slate-900 sm:text-base">クイックアクション</p>
+                <div className="mt-2 grid gap-2.5 sm:grid-cols-3">
                 {heroActions.map((action) => {
                   const Icon = action.icon;
                   return (
-                    <div key={action.title} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                        <Icon size={15} />
+                      <div key={action.title} className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                          <Icon size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-[11px] font-bold text-slate-900 sm:text-sm">{action.title}</p>
+                          <p className="truncate text-[10px] text-slate-500 sm:text-xs">{action.note}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-[10px] font-bold text-slate-900 sm:text-xs">{action.title}</p>
-                        <p className="truncate text-[10px] text-slate-500">{action.note}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
 
-            <div className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
-                <p className="text-xs font-bold text-slate-900 sm:text-sm">最近の送信履歴</p>
-                <span className="text-[10px] font-semibold text-blue-600 sm:text-xs">すべて表示</span>
-              </div>
-              <div className="divide-y divide-slate-100 text-[10px] sm:text-xs">
+              <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2.5">
+                  <p className="text-sm font-bold text-slate-900 sm:text-base">最近の送信履歴</p>
+                  <span className="text-[10px] font-semibold text-blue-600 sm:text-xs">すべて表示</span>
+                </div>
+                <div className="divide-y divide-slate-100 text-[10px] sm:text-xs">
                 {heroLogs.map(([company, status, email, date]) => (
-                  <div key={email} className="grid grid-cols-[1.15fr_0.65fr] gap-2 px-3 py-2 sm:grid-cols-[1.1fr_0.65fr_1.35fr_0.65fr]">
-                    <span className="truncate font-semibold text-slate-800">{company}</span>
-                    <span className="truncate font-medium text-emerald-600">{status}</span>
-                    <span className="hidden truncate text-slate-500 sm:block">{email}</span>
-                    <span className="hidden truncate text-right text-slate-500 sm:block">{date}</span>
-                  </div>
-                ))}
+                    <div key={email} className="grid grid-cols-[1.15fr_0.65fr] gap-2 px-3 py-2.5 sm:grid-cols-[1.1fr_0.65fr_1.35fr_0.65fr]">
+                      <span className="truncate font-semibold text-slate-800">{company}</span>
+                      <span className="truncate font-medium text-emerald-600">{status}</span>
+                      <span className="hidden truncate text-slate-500 sm:block">{email}</span>
+                      <span className="hidden truncate text-right text-slate-500 sm:block">{date}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <div className="relative mx-auto h-4 w-[92%] rounded-b-[1.8rem] bg-gradient-to-b from-slate-300 to-slate-500 shadow-[0_18px_28px_rgba(15,23,42,0.18)]">
+        <div className="absolute left-1/2 top-0 h-1.5 w-28 -translate-x-1/2 rounded-b-xl bg-slate-400/80" />
       </div>
     </div>
   );
@@ -196,7 +202,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative lg:-mr-6">
+            <div className="relative lg:-mr-12">
               <HeroDashboardMock />
             </div>
           </div>
