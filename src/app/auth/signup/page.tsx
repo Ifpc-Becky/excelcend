@@ -152,11 +152,16 @@ export default function SignupPage() {
           {loading ? "登録中..." : "アカウントを作成"}
         </button>
 
-        <p className="text-xs text-center text-slate-400">
-          登録することで
-          <span className="text-slate-500">利用規約</span>・
-          <span className="text-slate-500">プライバシーポリシー</span>
-          に同意したことになります。
+        <p className="text-xs text-center leading-5 text-slate-400">
+          登録することで、
+          <Link href="/terms" className="text-blue-600 hover:underline">
+            利用規約
+          </Link>
+          および
+          <Link href="/privacy" className="text-blue-600 hover:underline">
+            プライバシーポリシー
+          </Link>
+          に同意したものとみなされます。
         </p>
       </form>
     </div>
