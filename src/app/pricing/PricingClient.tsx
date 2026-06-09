@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Check,
@@ -381,6 +382,17 @@ export default function PricingClient({
           </p>
           <p className="text-xs text-slate-400">
             ご不明な点は <span className="text-blue-600">support@excelcend.com</span> までお問い合わせください。
+          </p>
+          <p className="text-xs leading-5 text-slate-400">
+            料金・契約条件については、
+            <Link href="/terms" className="text-blue-600 hover:underline">
+              利用規約
+            </Link>
+            および
+            <Link href="/legal/tokushoho" className="text-blue-600 hover:underline">
+              特定商取引法に基づく表記
+            </Link>
+            をご確認ください。
           </p>
         </div>
       </div>
