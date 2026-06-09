@@ -1,11 +1,13 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 interface LegalPageProps {
   title: string;
   description: string;
+  children?: ReactNode;
 }
 
-export default function LegalPage({ title, description }: LegalPageProps) {
+export default function LegalPage({ title, description, children }: LegalPageProps) {
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-12 text-slate-900 sm:px-6 lg:px-8">
       <article className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white px-5 py-8 shadow-sm sm:px-8 sm:py-10">
@@ -20,7 +22,7 @@ export default function LegalPage({ title, description }: LegalPageProps) {
           <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
         </header>
         <section className="prose prose-slate mt-8 max-w-none prose-h2:mt-8 prose-h2:text-xl prose-h2:font-bold prose-p:leading-7">
-          {/* 法務本文は、お客様から提供された確定文面のみをここに反映します。 */}
+          {children}
         </section>
       </article>
     </main>
