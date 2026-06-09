@@ -38,6 +38,8 @@ export async function middleware(request: NextRequest) {
 
   const publicApiPaths = ["/api/convert-pdf", "/api/send-email", "/api/stripe-webhook"];
   const isPublicApiPath = publicApiPaths.includes(pathname);
+  const publicPagePaths = ["/legal/tokushoho"];
+  const isPublicPagePath = publicPagePaths.includes(pathname);
 
   // 認証済みユーザーが /auth/* にアクセスしたらダッシュボードへ
   if (user && pathname.startsWith("/auth")) {
@@ -52,7 +54,8 @@ export async function middleware(request: NextRequest) {
     pathname !== "/" &&
     pathname !== "/pricing" &&
     pathname !== "/upload" &&
-    !isPublicApiPath
+    !isPublicApiPath &&
+    !isPublicPagePath
   ) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
