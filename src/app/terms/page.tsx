@@ -6,23 +6,26 @@ export const metadata: Metadata = {
   description: "ExcelCend の利用規約ページです。",
 };
 
-const sectionClassName = "mt-14 space-y-6 first:mt-0 break-words sm:mt-16";
+const sectionClassName = "mt-14 space-y-5 first:mt-0 break-words sm:mt-16 sm:space-y-6";
 const headingClassName =
-  "mt-2 border-l-4 border-blue-500 pl-4 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl";
-const paragraphClassName = "my-0 leading-8 text-slate-700 sm:leading-9";
+  "my-0 border-l-4 border-blue-500 pl-4 text-xl font-bold leading-8 tracking-tight text-slate-900 sm:text-2xl sm:leading-9";
+const paragraphClassName = "my-0 leading-8 text-slate-700 sm:leading-8";
 const listClassName =
-  "my-0 list-inside space-y-3 pl-0 leading-8 text-slate-700 marker:text-blue-500 sm:leading-9 [&>li]:rounded-xl [&>li]:border [&>li]:border-slate-100 [&>li]:bg-slate-50 [&>li]:px-4 [&>li]:py-3";
+  "my-0 list-inside space-y-3 pl-0 leading-8 text-slate-700 marker:text-blue-500 sm:leading-8 [&>li]:rounded-xl [&>li]:border [&>li]:border-slate-100 [&>li]:bg-slate-50 [&>li]:px-4 [&>li]:py-3";
 const priceListClassName = "my-0 grid gap-4 sm:grid-cols-2";
 const priceItemClassName =
-  "rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 shadow-sm sm:px-5";
-const priceNameClassName = "text-base font-semibold text-slate-900";
-const priceDetailClassName = "mt-2 leading-7 text-slate-600";
-const contactListClassName = "my-0 space-y-3 leading-8 text-slate-700 sm:leading-9";
+  "flex min-h-24 flex-col justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 shadow-sm sm:px-5";
+const priceNameClassName = "text-base font-semibold leading-7 text-slate-900";
+const priceDetailClassName = "my-0 leading-7 text-slate-600";
+const contactListClassName = "my-0 space-y-3 leading-8 text-slate-700 sm:leading-8";
+const contactItemClassName =
+  "grid gap-x-3 gap-y-1 sm:grid-cols-[8.5rem_minmax(0,1fr)]";
+const contactLabelClassName = "font-semibold text-slate-900";
 
 export default function TermsPage() {
   return (
     <LegalPage title="利用規約" description="ExcelCend の利用規約です。">
-      <div className="min-w-0 overflow-x-hidden text-[15px] leading-8 sm:text-base">
+      <div className="not-prose min-w-0 overflow-x-hidden text-[15px] leading-8 sm:text-base">
         <section className={sectionClassName}>
           <p className={paragraphClassName}>
             本利用規約（以下「本規約」といいます。）は、株式会社イフペック（以下「当社」といいます。）が提供する「ExcelCend」（以下「本サービス」といいます。）の利用条件を定めるものです。
@@ -177,21 +180,21 @@ export default function TermsPage() {
         <section className={sectionClassName}>
           <h2 className={headingClassName}>第15条（お問い合わせ）</h2>
           <dl className={contactListClassName}>
-            <div>
-              <dt className="inline font-semibold text-slate-900">運営会社：</dt>
-              <dd className="inline">株式会社イフペック</dd>
+            <div className={contactItemClassName}>
+              <dt className={contactLabelClassName}>運営会社：</dt>
+              <dd className="min-w-0">株式会社イフペック</dd>
             </div>
-            <div>
-              <dt className="inline font-semibold text-slate-900">責任者：</dt>
-              <dd className="inline">ムオンベキゆきこ</dd>
+            <div className={contactItemClassName}>
+              <dt className={contactLabelClassName}>責任者：</dt>
+              <dd className="min-w-0">ムオンベキゆきこ</dd>
             </div>
-            <div>
-              <dt className="inline font-semibold text-slate-900">所在地：</dt>
-              <dd className="inline">東京都港区六本木6-6-13 スプリームマンション302</dd>
+            <div className={contactItemClassName}>
+              <dt className={contactLabelClassName}>所在地：</dt>
+              <dd className="min-w-0">東京都港区六本木6-6-13 スプリームマンション302</dd>
             </div>
-            <div>
-              <dt className="inline font-semibold text-slate-900">メールアドレス：</dt>
-              <dd className="inline">support@excelcend.com</dd>
+            <div className={contactItemClassName}>
+              <dt className={contactLabelClassName}>メールアドレス：</dt>
+              <dd className="min-w-0">support@excelcend.com</dd>
             </div>
           </dl>
           <p className={paragraphClassName}>以上</p>
