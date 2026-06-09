@@ -6,83 +6,193 @@ export const metadata: Metadata = {
   description: "ExcelCend の利用規約ページです。",
 };
 
+const sectionClassName = "mt-10 space-y-4 first:mt-0 break-words";
+const paragraphClassName = "leading-8 text-slate-700";
+const listClassName = "space-y-2 pl-5 leading-8 text-slate-700 marker:text-blue-500";
+const priceListClassName = "grid gap-3 sm:grid-cols-2";
+const priceItemClassName = "py-1";
+const priceNameClassName = "font-semibold text-slate-900";
+const priceDetailClassName = "mt-1 leading-7 text-slate-600";
+const contactListClassName = "space-y-2 leading-8 text-slate-700";
+
 export default function TermsPage() {
   return (
     <LegalPage title="利用規約" description="ExcelCend の利用規約です。">
-      <p>
-        本利用規約（以下「本規約」といいます。）は、株式会社イフペック（以下「当社」といいます。）が提供する「ExcelCend」（以下「本サービス」といいます。）の利用条件を定めるものです。本サービスを利用する方（以下「ユーザー」といいます。）は、本規約に同意したうえで本サービスを利用するものとします。
-      </p>
+      <div className="overflow-x-hidden text-[15px] leading-8 sm:text-base">
+        <section className={sectionClassName}>
+          <p className={paragraphClassName}>
+            本利用規約（以下「本規約」といいます。）は、株式会社イフペック（以下「当社」といいます。）が提供する「ExcelCend」（以下「本サービス」といいます。）の利用条件を定めるものです。
+          </p>
+          <p className={paragraphClassName}>
+            利用者は、本規約に同意のうえ、本サービスを利用するものとします。
+          </p>
+        </section>
 
-      <h2>第1条（適用）</h2>
-      <p>
-        本規約は、本サービスの利用に関する当社とユーザーとの間の一切の関係に適用されます。当社が本サービス上で掲載する個別のルール、ガイドライン、注意事項等は、本規約の一部を構成するものとします。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第1条（適用）</h2>
+          <ol className={listClassName}>
+            <li>本規約は、利用者と当社との間の本サービス利用に関する一切の関係に適用されます。</li>
+            <li>当社が本サービス上で掲載するルール、ガイドライン等は、本規約の一部を構成します。</li>
+          </ol>
+        </section>
 
-      <h2>第2条（サービス内容）</h2>
-      <p>
-        本サービスは、ユーザーが保有または入力した顧客情報、テンプレート、ファイル等を用いて、メール送信、PDF変換、送信履歴管理その他これらに付随する機能を提供するサービスです。当社は、必要に応じて本サービスの内容を変更、追加または終了することがあります。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第2条（サービス内容）</h2>
+          <p className={paragraphClassName}>
+            本サービスは、Excel形式等の請求書ファイルをアップロードし、PDF化、メール送信、送信履歴管理等を行うクラウドサービスです。
+          </p>
+          <p className={paragraphClassName}>当社は、機能追加、改善、変更を行う場合があります。</p>
+        </section>
 
-      <h2>第3条（登録）</h2>
-      <p>
-        ユーザーは、当社所定の方法により利用登録を行うものとします。登録情報に虚偽、誤記、記載漏れがある場合、または当社が登録を不適切と判断した場合、当社は登録を拒否または取り消すことができます。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第3条（アカウント登録）</h2>
+          <ol className={listClassName}>
+            <li>利用希望者は、当社所定の方法で登録申請を行います。</li>
+            <li>当社は、以下の場合、登録を拒否または取消できるものとします。</li>
+          </ol>
+          <ul className={listClassName}>
+            <li>虚偽情報による登録</li>
+            <li>過去の規約違反</li>
+            <li>不正利用の恐れ</li>
+            <li>その他、当社が不適切と判断した場合</li>
+          </ul>
+          <p className={paragraphClassName}>利用者は、アカウント情報を自己責任で管理するものとします。</p>
+        </section>
 
-      <h2>第4条（アカウント管理）</h2>
-      <p>
-        ユーザーは、自己の責任においてアカウント情報を適切に管理するものとします。アカウント情報の管理不十分、使用上の過誤、第三者による使用等によって生じた損害について、当社は当社の故意または重過失がある場合を除き責任を負いません。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第4条（禁止事項）</h2>
+          <p className={paragraphClassName}>利用者は、以下を行ってはなりません。</p>
+          <ul className={listClassName}>
+            <li>法令違反または公序良俗違反行為</li>
+            <li>不正アクセス、システム負荷行為</li>
+            <li>他者へのなりすまし</li>
+            <li>不正請求書、違法取引、詐欺目的利用</li>
+            <li>スパム送信、迷惑行為</li>
+            <li>他利用者または当社に損害を与える行為</li>
+            <li>サービス運営妨害</li>
+          </ul>
+        </section>
 
-      <h2>第5条（料金および支払方法）</h2>
-      <p>
-        本サービスの有料プランの料金は、Freeが0円（10通）、Starterが390円（30通）、Standardが980円（100通）、Businessが2,980円（無制限）です。ユーザーは、当社が指定する決済方法により料金を支払うものとします。プラン内容、料金、提供条件は、当社が必要に応じて変更することがあります。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第5条（利用料金）</h2>
+          <p className={paragraphClassName}>本サービスには無料プランおよび有料プランがあります。</p>
+          <dl className={priceListClassName}>
+            <div className={priceItemClassName}>
+              <dt className={priceNameClassName}>Free</dt>
+              <dd className={priceDetailClassName}>0円（月10通）</dd>
+            </div>
+            <div className={priceItemClassName}>
+              <dt className={priceNameClassName}>Starter</dt>
+              <dd className={priceDetailClassName}>390円（月30通）</dd>
+            </div>
+            <div className={priceItemClassName}>
+              <dt className={priceNameClassName}>Standard</dt>
+              <dd className={priceDetailClassName}>980円（月100通）</dd>
+            </div>
+            <div className={priceItemClassName}>
+              <dt className={priceNameClassName}>Business</dt>
+              <dd className={priceDetailClassName}>2,980円（無制限）</dd>
+            </div>
+          </dl>
+          <p className={paragraphClassName}>料金、機能、利用条件は予告なく変更される場合があります。</p>
+          <p className={paragraphClassName}>有料プラン料金は、決済サービスを通じて支払うものとします。</p>
+        </section>
 
-      <h2>第6条（禁止事項）</h2>
-      <p>ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
-      <ul>
-        <li>法令または公序良俗に違反する行為</li>
-        <li>第三者の権利、利益、名誉、信用、プライバシーを侵害する行為</li>
-        <li>迷惑メール、スパム、詐欺的または不正な内容の送信</li>
-        <li>本サービスの運営を妨害する行為</li>
-        <li>不正アクセス、過度な負荷を与える行為、セキュリティを侵害する行為</li>
-        <li>当社が不適切と判断する行為</li>
-      </ul>
+        <section className={sectionClassName}>
+          <h2>第6条（契約期間・解約）</h2>
+          <p className={paragraphClassName}>利用者は、いつでもプラン解約できます。</p>
+          <p className={paragraphClassName}>解約後も契約期間終了までは利用可能です。</p>
+          <p className={paragraphClassName}>既に支払済み料金について、法令上必要な場合を除き返金しません。</p>
+        </section>
 
-      <h2>第7条（ユーザーコンテンツ）</h2>
-      <p>
-        ユーザーは、本サービスに登録、入力、アップロードまたは送信する情報について、必要な権利および権限を有していることを保証するものとします。ユーザーコンテンツに関して第三者との間で紛争が生じた場合、ユーザーの責任と費用において解決するものとします。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第7条（データ管理）</h2>
+          <p className={paragraphClassName}>
+            利用者は、送信データ、顧客情報、請求書データ等について自己責任で管理するものとします。
+          </p>
+          <p className={paragraphClassName}>当社はデータ保全に努めますが、完全な保存を保証しません。</p>
+          <p className={paragraphClassName}>重要データについては利用者自身でバックアップを行ってください。</p>
+        </section>
 
-      <h2>第8条（サービスの停止・中断）</h2>
-      <p>
-        当社は、保守、障害、天災地変、外部サービスの停止、その他やむを得ない事由がある場合、本サービスの全部または一部を停止または中断することがあります。これによりユーザーに損害が生じた場合でも、当社は当社の故意または重過失がある場合を除き責任を負いません。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第8条（サービス停止・変更）</h2>
+          <p className={paragraphClassName}>
+            当社は以下の場合、事前通知なく本サービスを停止または変更できるものとします。
+          </p>
+          <ul className={listClassName}>
+            <li>メンテナンス</li>
+            <li>障害対応</li>
+            <li>セキュリティ上必要な場合</li>
+            <li>外部サービス障害</li>
+            <li>その他運営上必要な場合</li>
+          </ul>
+        </section>
 
-      <h2>第9条（解約）</h2>
-      <p>
-        ユーザーは、当社所定の方法により本サービスを解約することができます。解約後のデータの取扱い、利用停止日、請求の終了時期等は、当社が定める方法によるものとします。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第9条（知的財産権）</h2>
+          <p className={paragraphClassName}>本サービスに関する知的財産権は当社または正当な権利者に帰属します。</p>
+        </section>
 
-      <h2>第10条（免責事項）</h2>
-      <p>
-        当社は、本サービスがユーザーの特定の目的に適合すること、期待する成果を得られること、継続的に利用可能であること、不具合がないことを保証しません。当社は、本サービスの利用または利用不能により生じた損害について、当社の故意または重過失がある場合を除き責任を負いません。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第10条（保証の否認・免責）</h2>
+          <p className={paragraphClassName}>当社は、本サービスの完全性、正確性、継続性、特定目的適合性を保証しません。</p>
+          <p className={paragraphClassName}>
+            メール送信失敗、外部サービス障害、通信障害、利用者環境等に起因する損害について責任を負いません。
+          </p>
+          <p className={paragraphClassName}>利用者間または第三者とのトラブルについて、当社は責任を負いません。</p>
+        </section>
 
-      <h2>第11条（規約の変更）</h2>
-      <p>
-        当社は、必要に応じて本規約を変更することがあります。変更後の規約は、本サービス上での掲載その他当社が適切と判断する方法により通知した時点から効力を生じるものとします。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第11条（損害賠償）</h2>
+          <p className={paragraphClassName}>
+            当社の責任は、当社に故意または重過失がある場合を除き、直近1か月分の利用料金を上限とします。
+          </p>
+        </section>
 
-      <h2>第12条（準拠法・管轄）</h2>
-      <p>
-        本規約は日本法に準拠します。本サービスに関して紛争が生じた場合、当社所在地を管轄する裁判所を第一審の専属的合意管轄裁判所とします。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第12条（利用停止・削除）</h2>
+          <p className={paragraphClassName}>
+            当社は、利用者が本規約違反した場合、事前通知なくアカウント停止または削除できます。
+          </p>
+        </section>
 
-      <h2>お問い合わせ</h2>
-      <p>
-        本規約に関するお問い合わせは、support@excelcend.com までご連絡ください。
-      </p>
+        <section className={sectionClassName}>
+          <h2>第13条（規約変更）</h2>
+          <p className={paragraphClassName}>当社は必要に応じて本規約を変更できます。</p>
+          <p className={paragraphClassName}>変更後の内容は、本サービス上へ掲載した時点で効力を生じるものとします。</p>
+        </section>
+
+        <section className={sectionClassName}>
+          <h2>第14条（準拠法・裁判管轄）</h2>
+          <p className={paragraphClassName}>本規約は日本法に準拠します。</p>
+          <p className={paragraphClassName}>
+            本サービスに関して紛争が生じた場合、東京地方裁判所を第一審の専属的合意管轄裁判所とします。
+          </p>
+        </section>
+
+        <section className={sectionClassName}>
+          <h2>第15条（お問い合わせ）</h2>
+          <dl className={contactListClassName}>
+            <div>
+              <dt className="inline font-semibold text-slate-900">運営会社：</dt>
+              <dd className="inline">株式会社イフペック</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold text-slate-900">責任者：</dt>
+              <dd className="inline">ムオンベキゆきこ</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold text-slate-900">所在地：</dt>
+              <dd className="inline">東京都港区六本木6-6-13 スプリームマンション302</dd>
+            </div>
+            <div>
+              <dt className="inline font-semibold text-slate-900">メールアドレス：</dt>
+              <dd className="inline">support@excelcend.com</dd>
+            </div>
+          </dl>
+          <p className={paragraphClassName}>以上</p>
+        </section>
+      </div>
     </LegalPage>
   );
 }
