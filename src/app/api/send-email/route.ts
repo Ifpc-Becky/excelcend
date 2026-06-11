@@ -2,14 +2,57 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { buildEmailHtml, toJapaneseError } from "@/lib/email";
-import { getCurrentSubscriptionPlan, getMonthlyEmailLimit } from "@/lib/subscription";
+import { getCcEmailLimit, getCurrentSubscriptionPlan, getMonthlyEmailLimit, type SubscriptionPlan } from "@/lib/subscription";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const resendFrom = process.env.RESEND_FROM_EMAIL;
 
+const CC_EMAIL_ERROR = "CCに正しいメールアドレスを入力してください";
+
 // メールアドレスの簡易バリデーション
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function parseCcEmails(value: unknown, toEmail: string): string[] | null {
+  const rawItems = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+    ? value.split(/[\n,;]/)
+    : [];
+
+  const normalizedTo = toEmail.toLowerCase();
+  const seen = new Set<string>();
+  const ccEmails: string[] = [];
+
+  for (const item of rawItems) {
+    const email = String(item ?? "").trim();
+    if (!email) continue;
+    if (!isValidEmail(email)) return null;
+
+    const normalized = email.toLowerCase();
+    if (normalized === normalizedTo || seen.has(normalized)) continue;
+
+    seen.add(normalized);
+    ccEmails.push(email);
+  }
+
+  return ccEmails;
+}
+
+function validateCcPlanLimit(plan: SubscriptionPlan, ccEmails: string[]): string | null {
+  const limit = getCcEmailLimit(plan);
+
+  if (ccEmails.length === 0) return null;
+  if (limit === 0) return "CC機能はStarterプラン以上で利用できます";
+  if (ccEmails.length > limit && plan === "Starter") {
+    return "StarterプランではCCは1件まで利用できます";
+  }
+  if (ccEmails.length > limit) {
+    return `CCは${limit}件まで入力できます`;
+  }
+
+  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -29,6 +72,7 @@ export async function POST(req: NextRequest) {
   let companyName: string;
   let sourcePath: string;
   let emailBody: string;
+  let ccEmails: string[] = [];
 
   try {
     const body = await req.json();
@@ -39,6 +83,15 @@ export async function POST(req: NextRequest) {
     companyName = (body.companyName ?? "").trim();
     sourcePath  = (body.sourcePath  ?? "").trim();
     emailBody   = (body.emailBody   ?? "").trim(); // テンプレート本文（省略可）
+
+    const parsedCcEmails = parseCcEmails(body.ccEmails ?? body.cc ?? "", to);
+    if (!parsedCcEmails) {
+      return NextResponse.json(
+        { error: CC_EMAIL_ERROR },
+        { status: 400 }
+      );
+    }
+    ccEmails = parsedCcEmails;
 
     if (!to || !subject || !pdfPath) {
       return NextResponse.json(
@@ -80,9 +133,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ④ プランごとの月間送信上限チェック（成功送信のみ対象）
+  // ④ プランごとのCC利用制限・月間送信上限チェック（成功送信のみ対象）
   if (user) {
     const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
+    const ccLimitError = validateCcPlanLimit(currentPlan.name, ccEmails);
+    if (ccLimitError) {
+      return NextResponse.json(
+        { error: ccLimitError },
+        { status: 403 }
+      );
+    }
+
     const monthlyLimit = getMonthlyEmailLimit(currentPlan.name);
 
     if (monthlyLimit !== null) {
@@ -115,6 +176,13 @@ export async function POST(req: NextRequest) {
         );
       }
     }
+  }
+
+  if (!user && ccEmails.length > 0) {
+    return NextResponse.json(
+      { error: "CC機能はStarterプラン以上で利用できます" },
+      { status: 403 }
+    );
   }
 
   // ⑤ pdf-files バケットから PDF をダウンロード
@@ -155,6 +223,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await resend.emails.send({
     from: `ExcelCend <${resendFrom}>`,
     to: [to],
+    ...(ccEmails.length > 0 ? { cc: ccEmails } : {}),
     subject: subject,
     html: buildEmailHtml(companyName, emailBody || undefined),
     attachments: [
@@ -175,6 +244,7 @@ export async function POST(req: NextRequest) {
         company_name:     companyName,
         to_email:         to,
         subject:          subject,
+        cc_emails:        ccEmails.length > 0 ? ccEmails : null,
         pdf_path:         pdfPath  || null,
         source_file_path: sourcePath || null,
         status:           "failed",
@@ -195,6 +265,7 @@ export async function POST(req: NextRequest) {
       company_name:     companyName,
       to_email:         to,
       subject:          subject,
+      cc_emails:        ccEmails.length > 0 ? ccEmails : null,
       pdf_path:         pdfPath  || null,
       source_file_path: sourcePath || null,
       status:           "sent",

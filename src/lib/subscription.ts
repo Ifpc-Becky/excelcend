@@ -20,12 +20,23 @@ export const CUSTOMER_LIMITS: Record<SubscriptionPlan, number | null> = {
   Business: null,
 };
 
+export const CC_EMAIL_LIMITS: Record<SubscriptionPlan, number> = {
+  Free: 0,
+  Starter: 1,
+  Standard: 10,
+  Business: 10,
+};
+
 export function canUseStandardFeatures(plan: SubscriptionPlan): boolean {
   return plan === "Standard" || plan === "Business";
 }
 
 export function getCustomerLimit(plan: SubscriptionPlan): number | null {
   return CUSTOMER_LIMITS[plan];
+}
+
+export function getCcEmailLimit(plan: SubscriptionPlan): number {
+  return CC_EMAIL_LIMITS[plan];
 }
 
 export function isCustomerLimitReached(plan: SubscriptionPlan, currentCount: number): boolean {
