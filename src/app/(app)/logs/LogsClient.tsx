@@ -291,7 +291,7 @@ export default function LogsClient({
                             {log.company_name}
                           </p>
                           <p className="text-xs text-slate-400 truncate max-w-[180px]">
-                            → {log.to_email}
+                            宛先：{log.to_email}
                           </p>
                           {log.cc_emails && log.cc_emails.length > 0 && (
                             <p className="text-xs text-slate-400 truncate max-w-[180px]" title={log.cc_emails.join(", ")}>

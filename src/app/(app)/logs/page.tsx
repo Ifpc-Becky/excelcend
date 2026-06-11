@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import LogsClient, { type SendLog } from "./LogsClient";
 import { getCurrentSubscriptionPlan } from "@/lib/subscription";
+import { fetchSendLogsWithOptionalCc } from "@/lib/send-logs";
 
 export default async function LogsPage() {
   const supabase = await createClient();
@@ -13,20 +14,18 @@ export default async function LogsPage() {
   if (!user) redirect("/auth/login");
 
   // send_logs を取得（新しい順、最大100件）
-  const { data: logs, error } = await supabase
-    .from("send_logs")
-    .select(
-      "id, company_name, to_email, cc_emails, subject, pdf_path, source_file_path, status, created_at"
-    )
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const { data: logs } = await fetchSendLogsWithOptionalCc<SendLog>(
+    (columns) => supabase
+      .from("send_logs")
+      .select(columns)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    "id, company_name, to_email, subject, pdf_path, source_file_path, status, created_at",
+    "[logs]"
+  );
 
-  if (error) {
-    console.error("[logs] fetch error:", error);
-  }
-
-  const initialLogs: SendLog[] = logs ?? [];
+  const initialLogs: SendLog[] = logs;
   const currentPlan = await getCurrentSubscriptionPlan(user.id, user.email);
 
   return <LogsClient initialLogs={initialLogs} currentPlan={currentPlan.name} />;

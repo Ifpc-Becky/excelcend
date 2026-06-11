@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { buildEmailHtml, toJapaneseError } from "@/lib/email";
+import { insertSendLog } from "@/lib/send-logs";
 import { getCcEmailLimit, getCurrentSubscriptionPlan, getMonthlyEmailLimit, type SubscriptionPlan } from "@/lib/subscription";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -239,7 +240,7 @@ export async function POST(req: NextRequest) {
 
     // 送信失敗ログを DB に保存（失敗してもログは残す）
     if (user) {
-      await supabase.from("send_logs").insert({
+      await insertSendLog(supabase, {
         user_id:          user.id,
         company_name:     companyName,
         to_email:         to,
@@ -248,7 +249,7 @@ export async function POST(req: NextRequest) {
         pdf_path:         pdfPath  || null,
         source_file_path: sourcePath || null,
         status:           "failed",
-      });
+      }, "[send-email]");
     }
 
     const msg = typeof error === "object" && "message" in error
@@ -260,7 +261,7 @@ export async function POST(req: NextRequest) {
 
   // ⑧ 送信成功ログを DB に保存
   if (user) {
-    const { error: logError } = await supabase.from("send_logs").insert({
+    await insertSendLog(supabase, {
       user_id:          user.id,
       company_name:     companyName,
       to_email:         to,
@@ -269,12 +270,7 @@ export async function POST(req: NextRequest) {
       pdf_path:         pdfPath  || null,
       source_file_path: sourcePath || null,
       status:           "sent",
-    });
-
-    if (logError) {
-      // ログ保存失敗はサイレントエラー（送信自体は成功しているため）
-      console.error("[send-email] Log insert error:", logError);
-    }
+    }, "[send-email]");
   }
 
   // ⑨ 顧客を自動登録（同一 company_name + email が未登録の場合のみ）
