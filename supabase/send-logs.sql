@@ -9,6 +9,7 @@ create table if not exists public.send_logs (
   company_name    text        not null,
   to_email        text        not null,
   subject         text        not null,
+  cc_emails       text[],
   pdf_path        text,
   source_file_path text,
   status          text        not null default 'sent',

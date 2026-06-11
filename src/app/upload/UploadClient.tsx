@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getCcEmailLimit, type SubscriptionPlan } from "@/lib/subscription";
 import {
   FileSpreadsheet,
   UploadCloud,
@@ -49,6 +50,7 @@ const ACCEPTED_TYPES = [
 ];
 const ACCEPTED_EXTENSIONS = [".xlsx", ".xls"];
 const MAX_SIZE_MB = 20;
+const CC_EMAIL_ERROR = "CCに正しいメールアドレスを入力してください";
 
 // -------------------------------------------------------
 // ユーティリティ
@@ -67,6 +69,26 @@ function isValidFile(file: File): string | null {
   if (file.size > MAX_SIZE_MB * 1024 * 1024)
     return `ファイルサイズは ${MAX_SIZE_MB}MB 以下にしてください。`;
   return null;
+}
+
+function parseCcEmails(value: string, toEmail: string): string[] | null {
+  const normalizedTo = toEmail.trim().toLowerCase();
+  const seen = new Set<string>();
+  const ccEmails: string[] = [];
+
+  for (const raw of value.split(/[\n,;]/)) {
+    const email = raw.trim();
+    if (!email) continue;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+
+    const normalized = email.toLowerCase();
+    if (normalized === normalizedTo || seen.has(normalized)) continue;
+
+    seen.add(normalized);
+    ccEmails.push(email);
+  }
+
+  return ccEmails;
 }
 
 // -------------------------------------------------------
@@ -222,7 +244,7 @@ function ErrorCard({
 // -------------------------------------------------------
 // メインコンポーネント
 // -------------------------------------------------------
-export default function UploadClient() {
+export default function UploadClient({ currentPlan }: { currentPlan: SubscriptionPlan }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -259,6 +281,8 @@ export default function UploadClient() {
   const [emailSubject,    setEmailSubject]     = useState("");
   const [isSubjectEdited, setIsSubjectEdited]  = useState(false);
   const [emailBody,       setEmailBody]        = useState(""); // テンプレート本文
+  const [ccExpanded,      setCcExpanded]       = useState(false);
+  const [ccInput,         setCcInput]          = useState("");
   const [isBodyEdited,    setIsBodyEdited]     = useState(false); // 手動編集フラグ
   const [sentTo,          setSentTo]           = useState<string | null>(null);
   const [sentCompany,     setSentCompany]      = useState<string | null>(null);
@@ -387,6 +411,8 @@ export default function UploadClient() {
         : ""
     );
     setIsBodyEdited(false);
+    setCcExpanded(false);
+    setCcInput("");
     setSelectedCustomer("");
   };
 
@@ -498,6 +524,26 @@ export default function UploadClient() {
       return;
     }
 
+    const ccEmails = parseCcEmails(ccInput, toTrimmed);
+    if (!ccEmails) {
+      setEmailError(CC_EMAIL_ERROR);
+      return;
+    }
+
+    const ccLimit = getCcEmailLimit(currentPlan);
+    if (ccEmails.length > 0 && ccLimit === 0) {
+      setEmailError("CC機能はStarterプラン以上で利用できます");
+      return;
+    }
+    if (ccEmails.length > ccLimit && currentPlan === "Starter") {
+      setEmailError("StarterプランではCCは1件まで利用できます");
+      return;
+    }
+    if (ccEmails.length > ccLimit) {
+      setEmailError(`CCは${ccLimit}件まで入力できます`);
+      return;
+    }
+
     setEmailStatus("sending");
     setEmailError(null);
 
@@ -515,6 +561,7 @@ export default function UploadClient() {
           companyName: companyTrimmed,
           sourcePath:  uploadedPath ?? "",
           emailBody:   emailBody.trim(),
+          ccEmails,
         }),
       });
       const data = await res.json();
@@ -855,6 +902,60 @@ export default function UploadClient() {
                     className="input-field"
                     disabled={false}
                   />
+                </div>
+
+                {/* CC（任意・必要な場合のみ展開） */}
+                <div className="space-y-2">
+                  {!ccExpanded ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (currentPlan === "Free") {
+                          setEmailError("CC機能はStarterプラン以上で利用できます");
+                          return;
+                        }
+                        setCcExpanded(true);
+                        setEmailError(null);
+                      }}
+                      className="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 transition"
+                    >
+                      ＋ CCを追加（任意）
+                    </button>
+                  ) : (
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5 gap-3">
+                        <label className="block text-xs font-semibold text-slate-600">
+                          CCメールアドレス
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCcExpanded(false);
+                            setCcInput("");
+                            setEmailError(null);
+                          }}
+                          className="text-xs text-slate-400 hover:text-slate-600 transition"
+                        >
+                          閉じる
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={ccInput}
+                        onChange={(e) => {
+                          setCcInput(e.target.value);
+                          setEmailError(null);
+                        }}
+                        placeholder={currentPlan === "Starter" ? "cc@example.com" : "a@example.com, b@example.com"}
+                        className="input-field"
+                      />
+                      <p className="text-xs text-slate-400 mt-1">
+                        {currentPlan === "Starter"
+                          ? "StarterプランではCCは1件まで利用できます。"
+                          : "カンマ区切りで最大10件まで入力できます。送信先と同じアドレスは自動で除外されます。"}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* ③ 件名（自動生成・手動編集可） */}

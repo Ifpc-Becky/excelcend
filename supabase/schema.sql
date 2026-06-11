@@ -21,6 +21,7 @@ create table if not exists public.send_logs (
   customer_id uuid references public.customers(id) on delete set null,
   subject text not null,
   recipient_email text not null,
+  cc_emails text[],
   recipient_company text,
   amount integer, -- 金額（円）
   status text check (status in ('pending', 'delivered', 'failed')) default 'pending',

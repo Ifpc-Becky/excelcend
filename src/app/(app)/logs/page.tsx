@@ -16,7 +16,7 @@ export default async function LogsPage() {
   const { data: logs, error } = await supabase
     .from("send_logs")
     .select(
-      "id, company_name, to_email, subject, pdf_path, source_file_path, status, created_at"
+      "id, company_name, to_email, cc_emails, subject, pdf_path, source_file_path, status, created_at"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
