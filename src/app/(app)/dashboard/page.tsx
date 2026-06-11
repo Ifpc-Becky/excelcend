@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentSubscriptionPlan, getMonthlyEmailLimit } from "@/lib/subscription";
+import { fetchSendLogsWithOptionalCc } from "@/lib/send-logs";
 import {
   FileSpreadsheet,
   TrendingUp,
@@ -23,6 +24,7 @@ interface SendLog {
   id: string;
   company_name: string;
   to_email: string;
+  cc_emails: string[] | null;
   subject: string;
   status: string;
   created_at: string;
@@ -82,18 +84,16 @@ export default async function DashboardPage({
   // -------------------------------------------------------
   // send_logs を一括取得（認証ユーザーIDで明示的に絞り込み）
   // -------------------------------------------------------
-  const { data: allLogs, error: logsError } = await supabase
-    .from("send_logs")
-    .select("id, company_name, to_email, subject, status, created_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(200); // 統計計算用に多めに取得
-
-  if (logsError) {
-    console.error("[dashboard] send_logs fetch error:", logsError);
-  }
-
-  const logs: SendLog[] = allLogs ?? [];
+  const { data: logs } = await fetchSendLogsWithOptionalCc<SendLog>(
+    (columns) => supabase
+      .from("send_logs")
+      .select(columns)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    "id, company_name, to_email, subject, status, created_at",
+    "[dashboard]"
+  );
 
   // -------------------------------------------------------
   // 統計計算
@@ -368,8 +368,13 @@ export default async function DashboardPage({
                 {/* 送信先・日時 */}
                 <div className="flex-shrink-0 text-right">
                   <p className="text-xs text-slate-500 truncate max-w-[140px]">
-                    {log.to_email}
+                    宛先：{log.to_email}
                   </p>
+                  {log.cc_emails && log.cc_emails.length > 0 && (
+                    <p className="text-xs text-slate-400 truncate max-w-[180px] mt-0.5" title={log.cc_emails.join(", ")}>
+                      CC：{log.cc_emails.join(", ")}
+                    </p>
+                  )}
                   <p className="text-xs text-slate-400 mt-0.5">
                     {formatDate(log.created_at)}
                   </p>

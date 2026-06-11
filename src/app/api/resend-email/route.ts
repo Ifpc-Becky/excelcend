@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
 import { buildEmailHtml, toJapaneseError } from "@/lib/email";
+import { fetchSendLogsWithOptionalCc, insertSendLog } from "@/lib/send-logs";
 import { canUseStandardFeatures, getCurrentSubscriptionPlan } from "@/lib/subscription";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -39,16 +40,27 @@ export async function POST(req: NextRequest) {
   }
 
   // ③ send_logs から対象ログを取得
-  const { data: log, error: logFetchError } = await supabase
-    .from("send_logs")
-    .select(
-      "id, user_id, company_name, to_email, subject, pdf_path, source_file_path"
-    )
-    .eq("id", logId)
-    .single();
+  const { data: logs, error: logFetchError } = await fetchSendLogsWithOptionalCc<{
+    id: string;
+    user_id: string;
+    company_name: string;
+    to_email: string;
+    cc_emails: string[] | null;
+    subject: string;
+    pdf_path: string | null;
+    source_file_path: string | null;
+  }>(
+    (columns) => supabase
+      .from("send_logs")
+      .select(columns)
+      .eq("id", logId)
+      .limit(1),
+    "id, user_id, company_name, to_email, subject, pdf_path, source_file_path",
+    "[resend-email]"
+  );
+  const log = logs[0];
 
   if (logFetchError || !log) {
-    console.error("[resend-email] log fetch error:", logFetchError);
     return NextResponse.json(
       { error: "送信ログが見つかりません" },
       { status: 404 }
@@ -80,15 +92,16 @@ export async function POST(req: NextRequest) {
     console.error("[resend-email] PDF download error:", downloadError);
 
     // ダウンロード失敗ログを記録
-    await supabase.from("send_logs").insert({
+    await insertSendLog(supabase, {
       user_id:          user.id,
       company_name:     log.company_name,
       to_email:         log.to_email,
       subject:          log.subject,
+      cc_emails:        log.cc_emails,
       pdf_path:         log.pdf_path,
       source_file_path: log.source_file_path,
       status:           "failed",
-    });
+    }, "[resend-email]");
 
     return NextResponse.json(
       { error: "PDFファイルの取得に失敗しました。ファイルが削除されている可能性があります。" },
@@ -116,6 +129,7 @@ export async function POST(req: NextRequest) {
   const { data: resendData, error: resendError } = await resend.emails.send({
     from: "ExcelCend <onboarding@resend.dev>",
     to:   [log.to_email],
+    ...(log.cc_emails && log.cc_emails.length > 0 ? { cc: log.cc_emails } : {}),
     subject: log.subject,
     html: buildEmailHtml(log.company_name),
     attachments: [
@@ -130,15 +144,16 @@ export async function POST(req: NextRequest) {
     console.error("[resend-email] Resend error:", resendError);
 
     // 送信失敗ログを記録
-    await supabase.from("send_logs").insert({
+    await insertSendLog(supabase, {
       user_id:          user.id,
       company_name:     log.company_name,
       to_email:         log.to_email,
       subject:          log.subject,
+      cc_emails:        log.cc_emails,
       pdf_path:         log.pdf_path,
       source_file_path: log.source_file_path,
       status:           "failed",
-    });
+    }, "[resend-email]");
 
     const msg =
       typeof resendError === "object" && "message" in resendError
@@ -152,20 +167,16 @@ export async function POST(req: NextRequest) {
   }
 
   // ⑨ 送信成功ログを記録（新レコードとして追加）
-  const { error: insertError } = await supabase.from("send_logs").insert({
+  await insertSendLog(supabase, {
     user_id:          user.id,
     company_name:     log.company_name,
     to_email:         log.to_email,
     subject:          log.subject,
+    cc_emails:        log.cc_emails,
     pdf_path:         log.pdf_path,
     source_file_path: log.source_file_path,
     status:           "sent",
-  });
-
-  if (insertError) {
-    // ログ保存失敗はサイレントエラー（送信自体は成功）
-    console.error("[resend-email] log insert error:", insertError);
-  }
+  }, "[resend-email]");
 
   return NextResponse.json({
     success:   true,
