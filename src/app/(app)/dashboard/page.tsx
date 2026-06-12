@@ -25,7 +25,7 @@ interface SendLog {
   id: string;
   company_name: string;
   to_email: string;
-  cc_emails: string[] | null;
+  cc_emails: unknown;
   subject: string;
   status: string;
   created_at: string;
@@ -359,11 +359,11 @@ export default async function DashboardPage({
 
                   {/* 送信先・日時 */}
                   <div className="flex-shrink-0 text-right">
-                    <p className="text-xs text-slate-500 truncate max-w-[140px]">
+                    <p className="text-xs text-slate-500 break-all max-w-[180px]">
                       宛先：{log.to_email}
                     </p>
                     {ccEmails.length > 0 && (
-                      <p className="text-xs text-slate-400 truncate max-w-[180px] mt-0.5" title={ccEmails.join(", ")}>
+                      <p className="text-xs text-slate-400 break-all max-w-[220px] mt-0.5" title={ccEmails.join(", ")}>
                         CC：{ccEmails.join(", ")}
                       </p>
                     )}

@@ -45,19 +45,55 @@ export function formatSendLogDate(
   return year ? `${year}/${month}/${day} ${hour}:${minute}` : "";
 }
 
+function normalizeEmailItems(items: unknown[]): string[] {
+  return items
+    .filter((email): email is string => typeof email === "string")
+    .map((email) => email.trim())
+    .filter(Boolean);
+}
+
+function parsePostgresTextArray(value: string): string[] | null {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return null;
+
+  return normalizeEmailItems(
+    trimmed
+      .slice(1, -1)
+      .split(",")
+      .map((email) => email.trim().replace(/^"|"$/g, ""))
+  );
+}
+
+function parseJsonArrayString(value: string): string[] | null {
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("[")) return null;
+
+  try {
+    const parsed: unknown = JSON.parse(trimmed);
+    return Array.isArray(parsed) ? normalizeEmailItems(parsed) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function normalizeCcEmails(ccEmails: unknown): string[] {
   if (Array.isArray(ccEmails)) {
-    return ccEmails
-      .filter((email): email is string => typeof email === "string")
-      .map((email) => email.trim())
-      .filter(Boolean);
+    return normalizeEmailItems(ccEmails);
   }
 
   if (typeof ccEmails === "string") {
-    return ccEmails
-      .split(",")
-      .map((email) => email.trim())
-      .filter(Boolean);
+    const parsedJsonArray = parseJsonArrayString(ccEmails);
+    if (parsedJsonArray) return parsedJsonArray;
+
+    const parsedPostgresArray = parsePostgresTextArray(ccEmails);
+    if (parsedPostgresArray) return parsedPostgresArray;
+
+    return normalizeEmailItems(ccEmails.split(/[\n,;]/));
+  }
+
+  if (ccEmails && typeof ccEmails === "object") {
+    const record = ccEmails as Record<string, unknown>;
+    return normalizeCcEmails(record.cc_emails ?? record.ccEmails ?? record.emails);
   }
 
   return [];

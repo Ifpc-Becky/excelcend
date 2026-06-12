@@ -87,7 +87,7 @@ export async function insertSendLog(
  * Selects send logs with cc_emails when available and falls back to the legacy
  * column set if a database has not run the cc_emails migration yet.
  */
-export async function fetchSendLogsWithOptionalCc<T extends { cc_emails?: string[] | null }>(
+export async function fetchSendLogsWithOptionalCc<T extends { cc_emails?: unknown }>(
   runQuery: (columns: string) => QueryResult,
   baseColumns: string,
   context: string
@@ -119,7 +119,7 @@ export async function fetchSendLogsWithOptionalCc<T extends { cc_emails?: string
   return { data: normalizeSendLogs(fallbackData), error: null };
 }
 
-function normalizeSendLogs<T extends { cc_emails?: string[] | null }>(data: unknown): T[] {
+function normalizeSendLogs<T extends { cc_emails?: unknown }>(data: unknown): T[] {
   return ((data as T[] | null) ?? []).map((log) => {
     const ccEmails = normalizeCcEmails(log.cc_emails);
 
