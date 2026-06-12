@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { canUseStandardFeatures, type SubscriptionPlan } from "@/lib/subscription";
+import { formatSendLogDate, normalizeCcEmails } from "@/lib/send-log-display";
 import {
   CheckCircle2,
   XCircle,
@@ -29,19 +30,6 @@ export interface SendLog {
   source_file_path: string | null;
   status: string;
   created_at: string;
-}
-
-// -------------------------------------------------------
-// ユーティリティ
-// -------------------------------------------------------
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const h = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${y}/${m}/${day} ${h}:${min}`;
 }
 
 // -------------------------------------------------------
@@ -264,6 +252,7 @@ export default function LogsClient({
                   {logs.map((log) => {
                     const isResending = !!resending[log.id];
                     const canResend   = !!log.pdf_path && canResendByPlan;
+                    const ccEmails = normalizeCcEmails(log.cc_emails);
                     return (
                       <tr
                         key={log.id}
@@ -293,9 +282,9 @@ export default function LogsClient({
                           <p className="text-xs text-slate-400 truncate max-w-[180px]">
                             宛先：{log.to_email}
                           </p>
-                          {log.cc_emails && log.cc_emails.length > 0 && (
-                            <p className="text-xs text-slate-400 truncate max-w-[180px]" title={log.cc_emails.join(", ")}>
-                              CC：{log.cc_emails.join(", ")}
+                          {ccEmails.length > 0 && (
+                            <p className="text-xs text-slate-400 truncate max-w-[180px]" title={ccEmails.join(", ")}>
+                              CC：{ccEmails.join(", ")}
                             </p>
                           )}
                         </td>
@@ -308,7 +297,7 @@ export default function LogsClient({
                         {/* 送信日時 */}
                         <td className="px-4 py-4 whitespace-nowrap">
                           <span className="text-sm text-slate-500">
-                            {formatDate(log.created_at)}
+                            {formatSendLogDate(log.created_at)}
                           </span>
                         </td>
 

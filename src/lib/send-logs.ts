@@ -1,3 +1,5 @@
+import { normalizeCcEmails } from "@/lib/send-log-display";
+
 type SupabaseError = {
   code?: string;
   message?: string;
@@ -93,7 +95,9 @@ export async function fetchSendLogsWithOptionalCc<T extends { cc_emails?: string
   const columnsWithCc = `${baseColumns}, cc_emails`;
   const { data, error } = await runQuery(columnsWithCc);
 
-  if (!error) return { data: (data as T[] | null) ?? [], error: null };
+  if (!error) {
+    return { data: normalizeSendLogs(data), error: null };
+  }
 
   if (!isMissingCcEmailsColumnError(error)) {
     console.error(`${context} send_logs fetch error:`, error);
@@ -112,10 +116,16 @@ export async function fetchSendLogsWithOptionalCc<T extends { cc_emails?: string
     return { data: [], error: fallbackError };
   }
 
-  const normalized = ((fallbackData as T[] | null) ?? []).map((log) => ({
-    ...log,
-    cc_emails: null,
-  }));
+  return { data: normalizeSendLogs(fallbackData), error: null };
+}
 
-  return { data: normalized, error: null };
+function normalizeSendLogs<T extends { cc_emails?: string[] | null }>(data: unknown): T[] {
+  return ((data as T[] | null) ?? []).map((log) => {
+    const ccEmails = normalizeCcEmails(log.cc_emails);
+
+    return {
+      ...log,
+      cc_emails: ccEmails.length > 0 ? ccEmails : null,
+    };
+  });
 }

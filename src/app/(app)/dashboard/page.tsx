@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentSubscriptionPlan, getMonthlyEmailLimit } from "@/lib/subscription";
 import { fetchSendLogsWithOptionalCc } from "@/lib/send-logs";
+import { formatSendLogDate, normalizeCcEmails } from "@/lib/send-log-display";
 import {
   FileSpreadsheet,
   TrendingUp,
@@ -28,18 +29,6 @@ interface SendLog {
   subject: string;
   status: string;
   created_at: string;
-}
-
-// -------------------------------------------------------
-// ユーティリティ
-// -------------------------------------------------------
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const h = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${m}/${day} ${h}:${min}`;
 }
 
 // -------------------------------------------------------
@@ -330,57 +319,61 @@ export default async function DashboardPage({
           <RecentLogsEmpty />
         ) : (
           <div className="divide-y divide-slate-50">
-            {recentLogs.map((log) => (
-              <div
-                key={log.id}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors"
-              >
-                {/* ステータスアイコン */}
-                <div className="flex-shrink-0">
-                  {log.status === "sent" ? (
-                    <CheckCircle2 size={18} className="text-emerald-500" />
-                  ) : (
-                    <XCircle size={18} className="text-red-400" />
-                  )}
-                </div>
+            {recentLogs.map((log) => {
+              const ccEmails = normalizeCcEmails(log.cc_emails);
 
-                {/* 送信情報 */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-sm font-semibold text-slate-900 truncate">
-                      {log.company_name}
-                    </span>
-                    <span
-                      className={`flex-shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
-                        log.status === "sent"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-red-50 text-red-600"
-                      }`}
-                    >
-                      {log.status === "sent" ? "送信完了" : "送信失敗"}
-                    </span>
+              return (
+                <div
+                  key={log.id}
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/60 transition-colors"
+                >
+                  {/* ステータスアイコン */}
+                  <div className="flex-shrink-0">
+                    {log.status === "sent" ? (
+                      <CheckCircle2 size={18} className="text-emerald-500" />
+                    ) : (
+                      <XCircle size={18} className="text-red-400" />
+                    )}
                   </div>
-                  <p className="text-xs text-slate-400 truncate">
-                    {log.subject}
-                  </p>
-                </div>
 
-                {/* 送信先・日時 */}
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-xs text-slate-500 truncate max-w-[140px]">
-                    宛先：{log.to_email}
-                  </p>
-                  {log.cc_emails && log.cc_emails.length > 0 && (
-                    <p className="text-xs text-slate-400 truncate max-w-[180px] mt-0.5" title={log.cc_emails.join(", ")}>
-                      CC：{log.cc_emails.join(", ")}
+                  {/* 送信情報 */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-sm font-semibold text-slate-900 truncate">
+                        {log.company_name}
+                      </span>
+                      <span
+                        className={`flex-shrink-0 text-xs px-2 py-0.5 rounded-full font-medium ${
+                          log.status === "sent"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-red-50 text-red-600"
+                        }`}
+                      >
+                        {log.status === "sent" ? "送信完了" : "送信失敗"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 truncate">
+                      {log.subject}
                     </p>
-                  )}
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    {formatDate(log.created_at)}
-                  </p>
+                  </div>
+
+                  {/* 送信先・日時 */}
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-xs text-slate-500 truncate max-w-[140px]">
+                      宛先：{log.to_email}
+                    </p>
+                    {ccEmails.length > 0 && (
+                      <p className="text-xs text-slate-400 truncate max-w-[180px] mt-0.5" title={ccEmails.join(", ")}>
+                        CC：{ccEmails.join(", ")}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {formatSendLogDate(log.created_at)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
