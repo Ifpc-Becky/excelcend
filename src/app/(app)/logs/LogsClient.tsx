@@ -24,7 +24,7 @@ export interface SendLog {
   id: string;
   company_name: string;
   to_email: string;
-  cc_emails: string[] | null;
+  cc_emails: unknown;
   subject: string;
   pdf_path: string | null;
   source_file_path: string | null;
@@ -279,11 +279,11 @@ export default function LogsClient({
                           <p className="text-sm font-semibold text-slate-900 truncate max-w-[180px]">
                             {log.company_name}
                           </p>
-                          <p className="text-xs text-slate-400 truncate max-w-[180px]">
+                          <p className="text-xs text-slate-400 break-all">
                             宛先：{log.to_email}
                           </p>
                           {ccEmails.length > 0 && (
-                            <p className="text-xs text-slate-400 truncate max-w-[180px]" title={ccEmails.join(", ")}>
+                            <p className="text-xs text-slate-400 break-all" title={ccEmails.join(", ")}>
                               CC：{ccEmails.join(", ")}
                             </p>
                           )}
